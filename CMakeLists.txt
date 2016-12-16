@@ -11,14 +11,12 @@ IF (deal.II_FOUND)
     INCLUDE_DIRECTORIES(${DEAL_II_INCLUDE_DIRS})
     IF (${CMAKE_BUILD_TYPE} STREQUAL "DEBUG")
         LINK_DIRECTORIES(${DEAL_II_LIBRARIES_DEBUG})
-        SET(LIBRARIES
-            ${LIBRARIES}
+        SET(DEAL_II_LIB
             ${DEAL_II_LIBRARIES_DEBUG}
             )
     ELSE()
         LINK_DIRECTORIES(${DEAL_II_LIBRARIES_RELEASE})
-        SET(LIBRARIES
-            ${LIBRARIES}
+        SET(DEAL_II_LIB
             ${DEAL_II_LIBRARIES_RELEASE}
             )
         ENDIF()
@@ -39,7 +37,7 @@ SET (LIBNAME stenseal)
 FILE(GLOB lib_srcs ${CMAKE_SOURCE_DIR}/source/*.cc)
 
 ADD_LIBRARY(${LIBNAME} ${lib_srcs} )
-TARGET_LINK_LIBRARIES(${LIBNAME} ${LIBRARIES})
+TARGET_LINK_LIBRARIES(${LIBNAME} ${DEAL_II_LIB})
 
 
 # an example using the library
