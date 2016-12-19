@@ -1,7 +1,5 @@
 /* -*- c-basic-offset:2; tab-width:2; indent-tabs-mode:nil -*-
  *
- * @(#)block_operator.h
- * @author Karl Ljungkvist <k.ljungkvist@gmail.com>
  *
  */
 
@@ -9,46 +7,42 @@
 #define _UPWIND_BLOCK_OPERATOR_H
 
 #include <deal.II/lac/vector.h>
+#include "stenseal/geometry.h"
 
 namespace stenseal
 {
 
-  struct Geometry {
-    double get_c(int i) const {
-      return 1.0;
-    }
-  };
-
-  template <int dim, typename StencilDm, typename StencilDp>
+  template <int dim, typename StencilDm, typename StencilDp, typename Geometry>
   class UpwindBlockOperator
   {
   private:
     Geometry geometry;
 
-    unsigned int n_nodes_1d[dim];
     unsigned int n_nodes_tot;
 
   public:
-    UpwindBlockOperator(int n_nodes[dim]);
+    UpwindBlockOperator(const Geometry &g);
 
     void apply(dealii::Vector<double> &dst, const dealii::Vector<double> &src) const;
 
   };
 
-  template <int dim, typename StencilDm, typename StencilDp>
-  UpwindBlockOperator<dim,StencilDm,StencilDp>::UpwindBlockOperator(int n_nodes[dim])
+  template <int dim, typename StencilDm, typename StencilDp, typename Geometry>
+  UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry>
+  ::UpwindBlockOperator(const Geometry &g)
+    : geometry(g)
   {
     n_nodes_tot = 1;
     for(int d = 0; d < dim; ++d) {
-      n_nodes_1d[d] = n_nodes[d];
-      n_nodes_tot *= n_nodes[d];
+      n_nodes_tot *= g.n_nodes[d];
     }
   }
 
 
-  template <int dim, typename StencilDm, typename StencilDp>
-  void UpwindBlockOperator<dim,StencilDm,StencilDp>::apply(dealii::Vector<double> &dst,
-                                                           const dealii::Vector<double> &src) const
+  template <int dim, typename StencilDm, typename StencilDp, typename Geometry>
+  void UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry>
+  ::apply(dealii::Vector<double> &dst,
+          const dealii::Vector<double> &src) const
   {
 
 
@@ -60,9 +54,11 @@ namespace stenseal
 
     if(dim==1) {
 
+      const unsigned int n = geometry.n_nodes[0];
+
       // for now, use full temporary array
       // FIXME: this is stupid!!
-      dealii::Vector<double> tmp (n_nodes_1d[0]);
+      dealii::Vector<double> tmp (n_nodes_tot);
 
       //-------------------------------------------------------------------------
       // apply Dm
@@ -82,7 +78,7 @@ namespace stenseal
 
       // interior
       for(int i = StencilDm::boundary_height;
-          i < (n_nodes_1d[0]-StencilDm::boundary_height) ;
+          i < (n - StencilDm::boundary_height) ;
           ++i) {
 
         double t = 0;
@@ -103,10 +99,10 @@ namespace stenseal
         double t = 0;
         for(int j = 0; j < StencilDm::boundary_width; ++j)
 
-          t += src[n_nodes_1d[0]-StencilDm::boundary_width+j] * StencilDm::boundary_stencil[(StencilDm::boundary_height-1 - i)*StencilDm::boundary_width
+          t += src[n - StencilDm::boundary_width+j] * StencilDm::boundary_stencil[(StencilDm::boundary_height-1 - i)*StencilDm::boundary_width
                                                                                             + (StencilDm::boundary_width-1 - j)];
 
-        tmp[n_nodes_1d[0]-StencilDm::boundary_height + i] = geometry.get_c(n_nodes_1d[0]-StencilDm::boundary_height + i)*t;
+        tmp[n - StencilDm::boundary_height + i] = geometry.get_c(n - StencilDm::boundary_height + i)*t;
       }
 
 
@@ -128,7 +124,7 @@ namespace stenseal
 
       // interior
       for(int i = StencilDp::boundary_height;
-          i < (n_nodes_1d[0]-StencilDp::boundary_height) ;
+          i < (n - StencilDp::boundary_height) ;
           ++i) {
 
         double t = 0;
@@ -149,10 +145,10 @@ namespace stenseal
         double t = 0;
         for(int j = 0; j < StencilDp::boundary_width; ++j)
 
-          t += tmp[n_nodes_1d[0]-StencilDp::boundary_width+j] * StencilDp::boundary_stencil[(StencilDp::boundary_height-1 - i)*StencilDp::boundary_width
+          t += tmp[n - StencilDp::boundary_width+j] * StencilDp::boundary_stencil[(StencilDp::boundary_height-1 - i)*StencilDp::boundary_width
                                                                                             + (StencilDp::boundary_width-1 - j)];
 
-        dst[n_nodes_1d[0]-StencilDp::boundary_height + i] = t;
+        dst[n - StencilDp::boundary_height + i] = t;
       }
 
 

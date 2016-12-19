@@ -45,16 +45,22 @@ const double StencilDp::boundary_stencil[] = { -0.5, 0.5 };
 const double StencilDp::interior_stencil[] = {-0.5, 0.0, 0.5};
 
 
-double compute_l2_norm(int n)
+double compute_l2_norm(unsigned int n)
 {
   const int dim = 1;
 
-  int n_nodes[dim] = { n };
+  unsigned int n_nodes[dim] = { n };
   int n_nodes_tot = n_nodes[0];
   double h = 1.0/(n_nodes_tot-1);
   const double PI = dealii::numbers::PI;
 
-  stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp> op(n_nodes);
+  // FIXME: call without points once default values are supported
+  typedef stenseal::CartesianGeometry<dim> Geometry;
+  Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
+                                            dealii::Point<dim>(1.0));
+
+  typedef stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry> Operator;
+  Operator op(geometry);
 
   dealii::Vector<double> u(n_nodes_tot);
 
@@ -68,11 +74,11 @@ double compute_l2_norm(int n)
 
   double l2_norm = 0;
   for(int i = 0; i < n_nodes_tot; ++i) {
-    double a = v[i]-(-(PI*h)*(PI*h)*sin(PI*i*h));
+    double a = v[i]-(-(PI)*(PI)*sin(PI*i*h));
     l2_norm += a*a;
   }
 
-  return l2_norm;
+  return sqrt(l2_norm);
 }
 
 
