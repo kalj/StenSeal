@@ -25,8 +25,8 @@ struct StencilDm {
   const static double interior_stencil[];
 };
 
-const double StencilDm::boundary_stencil[] = { 0.5, -0.5 };
-const double StencilDm::interior_stencil[] = { 0.5, 0.0, -0.5};
+const double StencilDm::boundary_stencil[] = { -1.0, 1.0 };
+const double StencilDm::interior_stencil[] = { -0.5, 0.0, 0.5};
 
 
 struct StencilDp {
@@ -41,7 +41,7 @@ struct StencilDp {
   const static double interior_stencil[];
 };
 
-const double StencilDp::boundary_stencil[] = { -0.5, 0.5 };
+const double StencilDp::boundary_stencil[] = { -1.0, 1.0 };
 const double StencilDp::interior_stencil[] = {-0.5, 0.0, 0.5};
 
 
