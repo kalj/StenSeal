@@ -26,7 +26,7 @@ namespace stenseal
     inline double get_c(int i) const
     {
       if(dim==1)
-        return h[0];
+        return 1.0/(h[0]*h[0]);
       else {
         // not implemented yet
         return -1;
