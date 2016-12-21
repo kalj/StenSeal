@@ -99,8 +99,8 @@ namespace stenseal
         double t = 0;
         for(int j = 0; j < StencilDm::boundary_width; ++j)
 
-          t += src[n - StencilDm::boundary_width+j] * StencilDm::boundary_stencil[(StencilDm::boundary_height-1 - i)*StencilDm::boundary_width
-                                                                                            + (StencilDm::boundary_width-1 - j)];
+          t += src[n - StencilDm::boundary_width+j] * (-1) * StencilDm::boundary_stencil[(StencilDm::boundary_height-1 - i)*StencilDm::boundary_width
+                                                                                         + (StencilDm::boundary_width-1 - j)];
 
         tmp[n - StencilDm::boundary_height + i] = geometry.get_c(n - StencilDm::boundary_height + i)*t;
       }
@@ -145,8 +145,8 @@ namespace stenseal
         double t = 0;
         for(int j = 0; j < StencilDp::boundary_width; ++j)
 
-          t += tmp[n - StencilDp::boundary_width+j] * StencilDp::boundary_stencil[(StencilDp::boundary_height-1 - i)*StencilDp::boundary_width
-                                                                                            + (StencilDp::boundary_width-1 - j)];
+          t += tmp[n - StencilDp::boundary_width+j] * (-1) * StencilDp::boundary_stencil[(StencilDp::boundary_height-1 - i)*StencilDp::boundary_width
+                                                                                         + (StencilDp::boundary_width-1 - j)];
 
         dst[n - StencilDp::boundary_height + i] = t;
       }
