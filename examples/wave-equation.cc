@@ -62,13 +62,14 @@ int main(int argc, char *argv[])
   dealii::Point<dim> lower_left(xmin,ymin);
   dealii::Point<dim> upper_right(xmax,ymax);
 
-  stenseal::CartesianGeometry<dim> geometry(n_nodes,lower_left,upper_right);
+  typedef stenseal::CartesianGeometry<dim> Geometry;
+  Geometry geometry(n_nodes,lower_left,upper_right);
 
   dealii::Vector<double> u;
 
   // TODO: initialize u
 
-  stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp> op(geometry);
+  stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry> op(geometry);
 
   // TODO:
   //
