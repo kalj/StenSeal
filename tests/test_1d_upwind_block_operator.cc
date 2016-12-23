@@ -25,8 +25,8 @@ struct StencilDm {
   const static double interior_stencil[];
 };
 
-const double StencilDm::boundary_stencil[] = { 0.5, -0.5 };
-const double StencilDm::interior_stencil[] = { 0.5, 0.0, -0.5};
+const double StencilDm::boundary_stencil[] = { -1.0, 1.0 };
+const double StencilDm::interior_stencil[] = { -0.5, 0.0, 0.5};
 
 
 struct StencilDp {
@@ -41,20 +41,26 @@ struct StencilDp {
   const static double interior_stencil[];
 };
 
-const double StencilDp::boundary_stencil[] = { -0.5, 0.5 };
+const double StencilDp::boundary_stencil[] = { -1.0, 1.0 };
 const double StencilDp::interior_stencil[] = {-0.5, 0.0, 0.5};
 
 
-double compute_l2_norm(int n)
+void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
 {
   const int dim = 1;
 
-  int n_nodes[dim] = { n };
+  unsigned int n_nodes[dim] = { n };
   int n_nodes_tot = n_nodes[0];
   double h = 1.0/(n_nodes_tot-1);
   const double PI = dealii::numbers::PI;
 
-  stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp> op(n_nodes);
+  // FIXME: call without points once default values are supported
+  typedef stenseal::CartesianGeometry<dim> Geometry;
+  Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
+                                            dealii::Point<dim>(1.0));
+
+  typedef stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry> Operator;
+  Operator op(geometry);
 
   dealii::Vector<double> u(n_nodes_tot);
 
@@ -66,41 +72,57 @@ double compute_l2_norm(int n)
 
   op.apply(v,u);
 
-  double l2_norm = 0;
-  for(int i = 0; i < n_nodes_tot; ++i) {
-    double a = v[i]-(-(PI*h)*(PI*h)*sin(PI*i*h));
-    l2_norm += a*a;
+
+  // compute norms
+  double sqsum = 0;
+  double a;
+  for(int i = 1; i < n_nodes_tot-1; ++i) {
+    a = v[i] - (-PI*PI*sin(PI*i*h));
+    sqsum += a*a;
   }
 
-  return l2_norm;
+  l2_norm_interior = std::sqrt(h*sqsum);
+
+  a = v[0] - (-PI*PI*sin(PI*0.0));
+  sqsum += a*a;
+
+  a = v[n_nodes_tot-1] - (-PI*PI*sin(PI*1.0));
+  sqsum += a*a;
+
+  l2_norm = std::sqrt(h*sqsum);
 }
 
 
 int main(int argc, char *argv[])
 {
   const int n_tests = 7;
-  double norms[n_tests];
+  double full_norms[n_tests];
+  double interior_norms[n_tests];
   unsigned int size = 40;
 
   for(int i=0; i<n_tests; i++) {
-    norms[i] = compute_l2_norm(size);
+    compute_l2_norm(size,full_norms[i],interior_norms[i]);
     size *= 2;
   }
 
-  printf("     n        error     conv\n");
-  printf(" ----------------------------\n");
+  printf("     n   full error   factor  (p)   inter. error   factor   (p)\n");
+  printf(" ---------------------------------------------------------------\n");
 
   size=40;
-  printf("%6d %12.4g        -\n",size,norms[0]);
+  printf("%6d %12.4g       - ( - )   %12.4g        - ( - )\n",size,full_norms[0],interior_norms[0]);
   size *= 2;
 
   bool all_conv = true;
   for(int i=1; i<n_tests; i++) {
-    double conv = norms[i-1] / norms[i];
-    printf("%6d %12.4g %8.4g\n",size,norms[i],conv);
+    double full_conv = full_norms[i-1] / full_norms[i];
+    double full_p = std::log2(full_conv);
+    double interior_conv = interior_norms[i-1] / interior_norms[i];
+    double interior_p = std::log2(interior_conv);
+    printf("%6d %12.4g %7.3g (%.1f)   %12.4g %8.3g (%.1f)\n",size,full_norms[i],full_conv,full_p,
+           interior_norms[i],interior_conv,interior_p);
     size *= 2;
 
-    all_conv = all_conv && conv > 3.999;
+    all_conv = all_conv && (interior_p > 1.99 && full_p > 1.499);
   }
 
 
