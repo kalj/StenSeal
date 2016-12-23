@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
   dealii::Vector<double> u;
 
-  geometry.initialize(u);
+  // TODO: initialize u
 
   stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp> op(geometry);
 
