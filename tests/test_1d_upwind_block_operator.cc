@@ -2,48 +2,12 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/base/numbers.h>
 
+#include "stenseal/operator.h"
 #include "stenseal/block_operator.h"
 
 /**
    Test second order upwind laplace
 */
-
-
-//=============================================================================
-// Stencils
-//=============================================================================
-
-struct StencilDm {
-  // boundary
-  const static unsigned int boundary_width = 2;
-  const static unsigned int boundary_height = 1;
-  const static double boundary_stencil[];
-
-  // interior
-  const static unsigned interior_width = 3;
-  const static int interior_start_idx = -1;
-  const static double interior_stencil[];
-};
-
-const double StencilDm::boundary_stencil[] = { -1.0, 1.0 };
-const double StencilDm::interior_stencil[] = { -0.5, 0.0, 0.5};
-
-
-struct StencilDp {
-  // boundary
-  const static unsigned int boundary_width = 2;
-  const static unsigned int boundary_height = 1;
-  const static double boundary_stencil[];
-
-  // interior
-  const static unsigned interior_width = 3;
-  const static int interior_start_idx = -1;
-  const static double interior_stencil[];
-};
-
-const double StencilDp::boundary_stencil[] = { -1.0, 1.0 };
-const double StencilDp::interior_stencil[] = {-0.5, 0.0, 0.5};
-
 
 void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
 {
@@ -57,10 +21,17 @@ void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
   // FIXME: call without points once default values are supported
   typedef stenseal::CartesianGeometry<dim> Geometry;
   Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
-                                            dealii::Point<dim>(1.0));
+                    dealii::Point<dim>(1.0));
 
-  typedef stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry> Operator;
-  Operator op(geometry);
+  typedef stenseal::Operator<2,2,1> OperatorType;
+  const stenseal::Symbol usym;
+
+  // define stencil
+  constexpr OperatorType Dm((-0.5)*usym[-1] + 0.5*usym[1],  // interior stencil
+                            (-1.0)*usym[0] + 1.0*usym[1],   // left boundary
+                            (-1.0)*usym[-1] + 1.0*usym[0]); // right boundary
+
+  stenseal::UpwindBlockOperator<dim,OperatorType,Geometry> op(Dm,geometry);
 
   dealii::Vector<double> u(n_nodes_tot);
 
