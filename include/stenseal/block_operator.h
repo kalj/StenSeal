@@ -12,21 +12,37 @@
 namespace stenseal
 {
 
+  /**
+   * Class representing a Upwind Laplace operator defined by the 1D 1st
+   * derivative "D-minus" operator DmT, on a `dim` dimensional grid block with
+   * geometry defined by the type `Geometry`.
+   */
   template <int dim, typename DmT, typename Geometry>
   class UpwindBlockOperator
   {
   private:
     const DmT Dm;
     const Geometry geometry;
-
     unsigned int n_nodes_tot;
 
   public:
+  /**
+   * Constructor. Takes the 1D D-minus Upwind SBP operator `dm`, and the
+   * geometry descriptor `g` of this grid block.
+   */
     UpwindBlockOperator(const DmT dm, const Geometry &g);
 
+  /**
+   * Apply this operator to the vector `src` writing the result into `dst`.
+   */
     void apply(dealii::Vector<double> &dst, const dealii::Vector<double> &src) const;
-
   };
+
+
+
+  //---------------------------------------------------------------------------
+  // implementations
+  //---------------------------------------------------------------------------
 
   template <int dim, typename DmT, typename Geometry>
   UpwindBlockOperator<dim,DmT,Geometry>
