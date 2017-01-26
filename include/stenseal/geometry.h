@@ -16,7 +16,9 @@ namespace stenseal
   public:
     double h[dim];
     unsigned int n_nodes[dim];
-
+    unsigned int n_nodes_total;
+    dealii::Point<dim> lower_left;
+    
     // FIXME: add default parameters which are [0,0,0,0....] and [1,1,1,1,...]
     CartesianGeometry(unsigned int n_nodes[dim],
                       const dealii::Point<dim> lower_left,
