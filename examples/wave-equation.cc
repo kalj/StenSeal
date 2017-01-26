@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
     constexpr stenseal::Stencil<2> left_boundary((-1.0)*usym[0] + 1.0*usym[1]);
     constexpr stenseal::Stencil<2> right_boundary((-1.0)*usym[-1] + 1.0*usym[0]);
 
-    constexpr stenseal::BlockStencil<2,1> left_boundary_block(left_boundary);
-    constexpr stenseal::BlockStencil<2,1> right_boundary_block(right_boundary);
+    constexpr stenseal::StencilArray<2,1> left_boundary_block(left_boundary);
+    constexpr stenseal::StencilArray<2,1> right_boundary_block(right_boundary);
     constexpr OperatorType Dm(interior, left_boundary_block, right_boundary_block);
   }
 

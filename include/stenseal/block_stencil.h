@@ -16,7 +16,7 @@ namespace stenseal
    * wide.
    */
   template <int width, int height>
-  class BlockStencil
+  class StencilArray
   {
   private:
     const std::array<Stencil<width>,height> stencils;
@@ -28,7 +28,7 @@ namespace stenseal
      * input.
      */
     template <typename... Ss>
-    constexpr  BlockStencil(const Ss... s);
+    constexpr  StencilArray(const Ss... s);
 
     /**
      * Access a specific row of the block.
@@ -43,14 +43,14 @@ namespace stenseal
 
   template <int width, int height>
   template <typename... Ss>
-  constexpr BlockStencil<width,height>::BlockStencil(const Ss... s)
+  constexpr StencilArray<width,height>::StencilArray(const Ss... s)
     : stencils{s...}
   {
     static_assert(sizeof...(Ss) == height, "wrong number of arguments");
   }
 
   template <int width, int height>
-  inline constexpr const Stencil<width>& BlockStencil<width,height>::operator[](int row) const {
+  inline constexpr const Stencil<width>& StencilArray<width,height>::operator[](int row) const {
     return stencils[row];
   }
 

@@ -29,18 +29,18 @@ namespace stenseal
   class Operator
   {
   private:
-    const BlockStencil<width_boundary,height_boundary> lboundary;
-    const BlockStencil<width_boundary,height_boundary> rboundary;
+    const StencilArray<width_boundary,height_boundary> lboundary;
+    const StencilArray<width_boundary,height_boundary> rboundary;
     const Stencil<width_interior> interior;
   public:
 
     /**
-     * Constructor. Takes the interior `Stencil` `i`, and the `BlockStencil`s
+     * Constructor. Takes the interior `Stencil` `i`, and the `StencilArray`s
      * `l` and `r` for the left and right boundaries respectively.
      */
     constexpr Operator(const Stencil<width_interior> i,
-                       const BlockStencil<width_boundary,height_boundary> l,
-                       const BlockStencil<width_boundary,height_boundary> r);
+                       const StencilArray<width_boundary,height_boundary> l,
+                       const StencilArray<width_boundary,height_boundary> r);
 
     /**
      * Apply this `Operator` to the vector `src` and write the result into
@@ -68,8 +68,8 @@ namespace stenseal
             int height_boundary>
   constexpr Operator<width_interior,width_boundary,height_boundary>
   ::Operator(const Stencil<width_interior> i,
-             const BlockStencil<width_boundary,height_boundary> l,
-             const BlockStencil<width_boundary,height_boundary> r)
+             const StencilArray<width_boundary,height_boundary> l,
+             const StencilArray<width_boundary,height_boundary> r)
     :interior(i), lboundary(l), rboundary(r)
   {}
 
