@@ -4,48 +4,9 @@
 #include <deal.II/base/function.h>
 
 #include "stenseal/geometry.h"
+#include "stenseal/operator.h"
 #include "stenseal/block_operator.h"
 
-
-
-//=============================================================================
-// upwind 2nd order operators
-//=============================================================================
-
-struct StencilDm {
-  // boundary
-  const static unsigned int boundary_width = 2;
-  const static unsigned int boundary_height = 1;
-  const static double boundary_stencil[];
-
-  // interior
-  // const static unsigned interior_width = 3;
-  const static unsigned interior_width = 2;
-  const static int interior_start_idx = -1;
-  const static double interior_stencil[];
-};
-
-const double StencilDm::boundary_stencil[] = { -1.0, 1.0 };
-// const double StencilDm::interior_stencil[] = { -0.5, 0.0, 0.5};
-const double StencilDm::interior_stencil[] = { -1.0, 1.0 };
-
-struct StencilDp {
-  // boundary
-  const static unsigned int boundary_width = 2;
-  const static unsigned int boundary_height = 1;
-  const static double boundary_stencil[];
-
-  // interior
-  // const static unsigned interior_width = 3;
-  // const static int interior_start_idx = -1;
-  const static unsigned interior_width = 2;
-  const static int interior_start_idx = 0;
-  const static double interior_stencil[];
-};
-
-const double StencilDp::boundary_stencil[] = { -1.0, 1.0 };
-// const double StencilDm::interior_stencil[] = { -0.5, 0.0, 0.5};
-const double StencilDp::interior_stencil[] = {-1.0, 1.0};
 
 template <int dim>
 class InitialValues : public dealii::Function<dim>
@@ -105,6 +66,15 @@ void initialize( dealii::Vector<double> &u, dealii::Function<dim> &f, const Geom
 
 int main(int argc, char *argv[])
 {
+  // const int dim = 1;
+
+  // double xmin = 0;
+  // double xmax = 1.0;
+
+  // unsigned int n_nodes[dim] = {200};
+  // dealii::Point<dim> lower_left(xmin);
+  // dealii::Point<dim> upper_right(xmax);
+
   const int dim = 2;
 
   double xmin = 0;
@@ -119,34 +89,47 @@ int main(int argc, char *argv[])
   typedef stenseal::CartesianGeometry<dim> Geometry;
   Geometry geometry(n_nodes,lower_left,upper_right);
 
+  //=============================================================================
+  // set up initial condition
+  //=============================================================================
   dealii::Vector<double> u(geometry.n_nodes_total);
   InitialValues<dim> f;
   initialize<dim,Geometry>(u,f,geometry);
 
-  stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry> op(geometry);
   u.print(std::cout);
 
+  //=============================================================================
+  // upwind 2nd order operators
+  //=============================================================================
+  typedef stenseal::Operator<2,2,1> OperatorType;
+  const stenseal::Symbol usym;
 
-  /*
-  const int dim = 1;
+  // now define operator like this:
+  {
+    constexpr stenseal::Stencil<2> interior((-1.0)*usym[-1] + 1.0*usym[0]);
+    constexpr stenseal::Stencil<2> left_boundary((-1.0)*usym[0] + 1.0*usym[1]);
+    constexpr stenseal::Stencil<2> right_boundary((-1.0)*usym[-1] + 1.0*usym[0]);
 
-  double xmin = 0;
-  double xmax = 1.0;
+    constexpr stenseal::StencilArray<2,1> left_boundary_block(left_boundary);
+    constexpr stenseal::StencilArray<2,1> right_boundary_block(right_boundary);
+    constexpr OperatorType Dm(interior, left_boundary_block, right_boundary_block);
+  }
 
-  unsigned int n_nodes[dim] = {200};
-  dealii::Point<dim> lower_left(xmin);
-  dealii::Point<dim> upper_right(xmax);
+  // or simpler:
+  {
+    constexpr stenseal::Stencil<2> interior((-1.0)*usym[-1] + 1.0*usym[0]);
+    constexpr stenseal::Stencil<2> left_boundary((-1.0)*usym[0] + 1.0*usym[1]);
+    constexpr stenseal::Stencil<2> right_boundary((-1.0)*usym[-1] + 1.0*usym[0]);
+    constexpr OperatorType Dm(interior, left_boundary, right_boundary);
+  }
 
-  typedef stenseal::CartesianGeometry<dim> Geometry;
-  Geometry geometry(n_nodes,lower_left,upper_right);
+  // or even:
+  constexpr OperatorType Dm((-1.0)*usym[-1] + 1.0*usym[0],  // interior stencil
+                            (-1.0)*usym[0] + 1.0*usym[1],   // left boundary
+                            (-1.0)*usym[-1] + 1.0*usym[0]); // right boundary
 
-  dealii::Vector<double> u(geometry.n_nodes_total);
-  InitialValues<dim> f;
-  initialize<dim,Geometry>(u,f,geometry);
+  stenseal::UpwindBlockOperator<dim,OperatorType,Geometry> op(Dm,geometry);
 
-  stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry> op(geometry);
-  u.print(std::cout);
-  */
 
   // TODO:
   //
@@ -158,7 +141,6 @@ int main(int argc, char *argv[])
   //   or (probably better) something good from dealii::TimeStepping (see
   //   [DEALSRC]/include/deal.II/base/time_stepping.h)
   // - Some sketch of how to apply the SAT, telling us what is needed for that
-  // - Some sensible initial condition
   // - Verification / outputting of solution
   //
   // In the long term:

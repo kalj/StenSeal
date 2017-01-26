@@ -12,25 +12,42 @@
 namespace stenseal
 {
 
-  template <int dim, typename StencilDm, typename StencilDp, typename Geometry>
+  /**
+   * Class representing a Upwind Laplace operator defined by the 1D 1st
+   * derivative "D-minus" operator DmT, on a `dim` dimensional grid block with
+   * geometry defined by the type `Geometry`.
+   */
+  template <int dim, typename DmT, typename Geometry>
   class UpwindBlockOperator
   {
   private:
-    Geometry geometry;
-
+    const DmT Dm;
+    const Geometry geometry;
     unsigned int n_nodes_tot;
 
   public:
-    UpwindBlockOperator(const Geometry &g);
+  /**
+   * Constructor. Takes the 1D D-minus Upwind SBP operator `dm`, and the
+   * geometry descriptor `g` of this grid block.
+   */
+    UpwindBlockOperator(const DmT dm, const Geometry &g);
 
+  /**
+   * Apply this operator to the vector `src` writing the result into `dst`.
+   */
     void apply(dealii::Vector<double> &dst, const dealii::Vector<double> &src) const;
-
   };
 
-  template <int dim, typename StencilDm, typename StencilDp, typename Geometry>
-  UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry>
-  ::UpwindBlockOperator(const Geometry &g)
-    : geometry(g)
+
+
+  //---------------------------------------------------------------------------
+  // implementations
+  //---------------------------------------------------------------------------
+
+  template <int dim, typename DmT, typename Geometry>
+  UpwindBlockOperator<dim,DmT,Geometry>
+  ::UpwindBlockOperator(const DmT dm, const Geometry &g)
+    : Dm(dm), geometry(g)
   {
     n_nodes_tot = 1;
     for(int d = 0; d < dim; ++d) {
@@ -39,8 +56,8 @@ namespace stenseal
   }
 
 
-  template <int dim, typename StencilDm, typename StencilDp, typename Geometry>
-  void UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry>
+  template <int dim, typename DmT, typename Geometry>
+  void UpwindBlockOperator<dim,DmT,Geometry>
   ::apply(dealii::Vector<double> &dst,
           const dealii::Vector<double> &src) const
   {
@@ -57,100 +74,25 @@ namespace stenseal
       const unsigned int n = geometry.n_nodes[0];
 
       // for now, use full temporary array
-      // FIXME: this is stupid!!
+      // FIXME: this is stupid!! instead use blocking
       dealii::Vector<double> tmp (n_nodes_tot);
 
       //-------------------------------------------------------------------------
       // apply Dm
       //-------------------------------------------------------------------------
 
-      // left boundary
-      for(int i = 0;
-          i < StencilDm::boundary_height;
-          ++i) {
+      Dm.apply(tmp,src,n);
 
-        double t = 0;
-        for(int j = 0; j < StencilDm::boundary_width; ++j)
-          t += src[0+j]*StencilDm::boundary_stencil[i*StencilDm::boundary_width + j];
-
-        tmp[i] = geometry.get_c(i)*t;
+      // stupid inefficient way of multiplying with c and 1/h^2
+      // FIXME: merge with above.
+      for(int i = 0; i<n; ++i) {
+        tmp[i] *= geometry.get_c(i);
       }
-
-      // interior
-      for(int i = StencilDm::boundary_height;
-          i < (n - StencilDm::boundary_height) ;
-          ++i) {
-
-        double t = 0;
-        for(int j = 0;
-            j < StencilDm::interior_width;
-            ++j)
-          t += src[i+StencilDm::interior_start_idx+j]*StencilDm::interior_stencil[j];
-
-        tmp[i] = geometry.get_c(i)*t;
-
-      }
-
-      // right boundary
-      for(int i = 0;
-          i < StencilDm::boundary_height;
-          ++i) {
-
-        double t = 0;
-        for(int j = 0; j < StencilDm::boundary_width; ++j)
-
-          t += src[n - StencilDm::boundary_width+j] * (-1) * StencilDm::boundary_stencil[(StencilDm::boundary_height-1 - i)*StencilDm::boundary_width
-                                                                                         + (StencilDm::boundary_width-1 - j)];
-
-        tmp[n - StencilDm::boundary_height + i] = geometry.get_c(n - StencilDm::boundary_height + i)*t;
-      }
-
 
       //-------------------------------------------------------------------------
       // apply Dp
       //-------------------------------------------------------------------------
-
-      // left boundary
-      for(int i = 0;
-          i < StencilDp::boundary_height;
-          ++i) {
-
-        double t = 0;
-        for(int j = 0; j < StencilDp::boundary_width; ++j)
-          t += tmp[0+j]*StencilDp::boundary_stencil[i*StencilDp::boundary_width + j];
-
-        dst[i] = t;
-      }
-
-      // interior
-      for(int i = StencilDp::boundary_height;
-          i < (n - StencilDp::boundary_height) ;
-          ++i) {
-
-        double t = 0;
-        for(int j = 0;
-            j < StencilDp::interior_width;
-            ++j)
-          t += tmp[i+StencilDp::interior_start_idx+j]*StencilDp::interior_stencil[j];
-
-        dst[i] = t;
-
-      }
-
-      // right boundary
-      for(int i = 0;
-          i < StencilDp::boundary_height;
-          ++i) {
-
-        double t = 0;
-        for(int j = 0; j < StencilDp::boundary_width; ++j)
-
-          t += tmp[n - StencilDp::boundary_width+j] * (-1) * StencilDp::boundary_stencil[(StencilDp::boundary_height-1 - i)*StencilDp::boundary_width
-                                                                                         + (StencilDp::boundary_width-1 - j)];
-
-        dst[n - StencilDp::boundary_height + i] = t;
-      }
-
+      Dm.apply_dp(dst,tmp,n);
 
 
     }

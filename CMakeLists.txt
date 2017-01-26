@@ -26,7 +26,7 @@ ELSE()
 ENDIF()
 
 # we crave 'modern' C++
-SET (CMAKE_CXX_STANDARD 11)
+SET (CMAKE_CXX_STANDARD 14)
 
 # add our include directory to search path
 INCLUDE_DIRECTORIES(include/)
