@@ -87,14 +87,14 @@ void initialize( dealii::Vector<double> &u, dealii::Function<dim> &f, const Geom
       u[i] = f.value(p);
     }
   } else if(dim==2){
-    for(int i = 0; i < g.n_nodes[0]; ++i) {
-      for(int j = 0; j < g.n_nodes[1]; ++j) {
+    for(int j = 0; j < g.n_nodes[1]; ++j) {
+      for(int i = 0; i < g.n_nodes[0]; ++i) {
         double x;
         double y;
-        x = i*g.h[0] + g.lower_left(0);
-        y = j*g.h[1] + g.lower_left(1);
+        x = j*g.h[0] + g.lower_left(0);
+        y = i*g.h[1] + g.lower_left(1);
         dealii::Point<dim> p(x,y);
-        u[g.n_nodes[1]*i+j] = f.value(p);
+        u[g.n_nodes[0]*i+j] = f.value(p);
       }
     }
   }
