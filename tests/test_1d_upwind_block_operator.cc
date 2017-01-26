@@ -3,13 +3,47 @@
 #include <deal.II/base/numbers.h>
 
 #include "stenseal/block_operator.h"
-#include "stenseal/stencils.h"
 
 /**
    Test second order upwind laplace
 */
 
-using namespace stenseal;
+
+//=============================================================================
+// Stencils
+//=============================================================================
+
+struct StencilDm {
+  // boundary
+  const static unsigned int boundary_width = 2;
+  const static unsigned int boundary_height = 1;
+  const static double boundary_stencil[];
+
+  // interior
+  const static unsigned interior_width = 3;
+  const static int interior_start_idx = -1;
+  const static double interior_stencil[];
+};
+
+const double StencilDm::boundary_stencil[] = { -1.0, 1.0 };
+const double StencilDm::interior_stencil[] = { -0.5, 0.0, 0.5};
+
+
+struct StencilDp {
+  // boundary
+  const static unsigned int boundary_width = 2;
+  const static unsigned int boundary_height = 1;
+  const static double boundary_stencil[];
+
+  // interior
+  const static unsigned interior_width = 3;
+  const static int interior_start_idx = -1;
+  const static double interior_stencil[];
+};
+
+const double StencilDp::boundary_stencil[] = { -1.0, 1.0 };
+const double StencilDp::interior_stencil[] = {-0.5, 0.0, 0.5};
+
 
 void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
 {
@@ -21,13 +55,11 @@ void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
   const double PI = dealii::numbers::PI;
 
   // FIXME: call without points once default values are supported
-  typedef CartesianGeometry<dim> Geometry;
+  typedef stenseal::CartesianGeometry<dim> Geometry;
   Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
                                             dealii::Point<dim>(1.0));
 
-  typedef stencils::second_order::StencilDm Dm;
-  typedef stencils::second_order::StencilDp Dp;
-  typedef UpwindBlockOperator<dim,Dm,Dp,Geometry> Operator;
+  typedef stenseal::UpwindBlockOperator<dim,StencilDm,StencilDp,Geometry> Operator;
   Operator op(geometry);
 
   dealii::Vector<double> u(n_nodes_tot);
