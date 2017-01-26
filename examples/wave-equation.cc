@@ -29,7 +29,6 @@ const double StencilDm::boundary_stencil[] = { -1.0, 1.0 };
 // const double StencilDm::interior_stencil[] = { -0.5, 0.0, 0.5};
 const double StencilDm::interior_stencil[] = { -1.0, 1.0 };
 
-
 struct StencilDp {
   // boundary
   const static unsigned int boundary_width = 2;
@@ -80,16 +79,16 @@ double InitialValues<dim>::value (const dealii::Point<dim> &p,
 template <int dim, typename Geometry>
 void initialize( dealii::Vector<double> &u, dealii::Function<dim> &f, const Geometry &g )
 {
-if(dim==1) {
-  for(int i = 0; i < g.n_nodes[0]; ++i) {
-    double x;
-    x = i*g.h[0] + g.lower_left(0);
-    dealii::Point<dim> p(x);
-    u[i] = f.value(p);
-  }
- } else if(dim==2){
-   for(int i = 0; i < g.n_nodes[0]; ++i) {
-     for(int j = 0; j < g.n_nodes[1]; ++j) {
+  if(dim==1) {
+    for(int i = 0; i < g.n_nodes[0]; ++i) {
+      double x;
+      x = i*g.h[0] + g.lower_left(0);
+      dealii::Point<dim> p(x);
+      u[i] = f.value(p);
+    }
+  } else if(dim==2){
+    for(int i = 0; i < g.n_nodes[0]; ++i) {
+      for(int j = 0; j < g.n_nodes[1]; ++j) {
         double x;
         double y;
         x = i*g.h[0] + g.lower_left(0);
@@ -98,9 +97,9 @@ if(dim==1) {
         u[g.n_nodes[1]*i+j] = f.value(p);
       }
     }
- }
- else  {
-      AssertThrow(false,dealii::ExcNotImplemented());
+  }
+  else  {
+    AssertThrow(false,dealii::ExcNotImplemented());
   }
 }
 
