@@ -87,8 +87,8 @@ void initialize( dealii::Vector<double> &u, dealii::Function<dim> &f, const Geom
       u[i] = f.value(p);
     }
   } else if(dim==2){
-    for(int j = 0; j < g.n_nodes[1]; ++j) {
-      for(int i = 0; i < g.n_nodes[0]; ++i) {
+    for(int i = 0; i < g.n_nodes[1]; ++i) {
+      for(int j = 0; j < g.n_nodes[0]; ++j) {
         double x;
         double y;
         x = j*g.h[0] + g.lower_left(0);
