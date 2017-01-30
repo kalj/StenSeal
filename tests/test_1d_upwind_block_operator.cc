@@ -4,6 +4,7 @@
 
 #include "stenseal/operator.h"
 #include "stenseal/block_operator.h"
+#include "stenseal/operator_lib.h"
 
 /**
    Test second order upwind laplace
@@ -23,13 +24,18 @@ void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
   Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
                     dealii::Point<dim>(1.0));
 
-  typedef stenseal::Operator<2,2,1> OperatorType;
-  const stenseal::Symbol usym;
+  // typedef stenseal::Operator<2,2,1> OperatorType;
+  // const stenseal::Symbol usym;
 
   // define stencil
-  constexpr OperatorType Dm((-0.5)*usym[-1] + 0.5*usym[1],  // interior stencil
-                            (-1.0)*usym[0] + 1.0*usym[1],   // left boundary
-                            (-1.0)*usym[-1] + 1.0*usym[0]); // right boundary
+  // constexpr OperatorType Dm((-0.5)*usym[-1] + 0.5*usym[1],  // interior stencil
+  //                           (-1.0)*usym[0] + 1.0*usym[1],   // left boundary
+  //                           (-1.0)*usym[-1] + 1.0*usym[0]); // right boundary
+
+  typedef stenseal::Operator<2,2,1,2,1> OperatorType;
+  const stenseal::Symbol usym;
+
+  constexpr OperatorType Dm = stenseal::upwind_operator_2nd_order();
 
   stenseal::UpwindBlockOperator<dim,OperatorType,Geometry> op(Dm,geometry);
 
