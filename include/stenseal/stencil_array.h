@@ -3,8 +3,8 @@
  *
  */
 
-#ifndef _BLOCK_STENCIL_H
-#define _BLOCK_STENCIL_H
+#ifndef _STENCIL_ARRAY_H
+#define _STENCIL_ARRAY_H
 
 #include "stenseal/stencil.h"
 
@@ -56,4 +56,4 @@ namespace stenseal
 
 }
 
-#endif /* _BLOCK_STENCIL_H */
+#endif /* _STENCIL_ARRAY_H */
