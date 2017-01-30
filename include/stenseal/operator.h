@@ -10,7 +10,7 @@
 #include <deal.II/lac/vector.h>
 
 #include "stenseal/stencil.h"
-#include "stenseal/block_stencil.h"
+#include "stenseal/stencil_array.h"
 
 //=============================================================================
 // this is an operator in 1D
