@@ -32,7 +32,7 @@ void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
   //                           (-1.0)*usym[0] + 1.0*usym[1],   // left boundary
   //                           (-1.0)*usym[-1] + 1.0*usym[0]); // right boundary
 
-  typedef stenseal::Operator<2,2,1,2,1> OperatorType;
+  typedef stenseal::Operator<3,2,2,4,2> OperatorType;
   const stenseal::Symbol usym;
 
   constexpr OperatorType Dm = stenseal::upwind_operator_2nd_order();
@@ -53,7 +53,7 @@ void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
   // compute norms
   double sqsum = 0;
   double a;
-  for(int i = 1; i < n_nodes_tot-1; ++i) {
+  for(int i = 2; i < n_nodes_tot-2; ++i) {
     a = v[i] - (-PI*PI*sin(PI*i*h));
     sqsum += a*a;
   }
