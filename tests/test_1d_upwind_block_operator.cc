@@ -10,7 +10,8 @@
    Test second order upwind laplace
 */
 
-void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
+template <typename OperatorType>
+void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l2_norm_interior)
 {
   const int dim = 1;
 
@@ -24,19 +25,6 @@ void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
   Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
                     dealii::Point<dim>(1.0));
 
-  // typedef stenseal::Operator<2,2,1> OperatorType;
-  // const stenseal::Symbol usym;
-
-  // define stencil
-  // constexpr OperatorType Dm((-0.5)*usym[-1] + 0.5*usym[1],  // interior stencil
-  //                           (-1.0)*usym[0] + 1.0*usym[1],   // left boundary
-  //                           (-1.0)*usym[-1] + 1.0*usym[0]); // right boundary
-
-  typedef stenseal::Operator<3,2,2,4,2> OperatorType;
-  const stenseal::Symbol usym;
-
-  constexpr OperatorType Dm = stenseal::upwind_operator_2nd_order();
-
   stenseal::UpwindBlockOperator<dim,OperatorType,Geometry> op(Dm,geometry);
 
   dealii::Vector<double> u(n_nodes_tot);
@@ -49,28 +37,35 @@ void compute_l2_norm(unsigned int n, double &l2_norm, double &l2_norm_interior)
 
   op.apply(v,u);
 
+  int height_r = OperatorType::height_r;
+  int height_l = OperatorType::height_l;
 
   // compute norms
   double sqsum = 0;
   double a;
-  for(int i = 2; i < n_nodes_tot-2; ++i) {
+  for(int i = height_l; i < n_nodes_tot-(height_r+1); ++i) {
     a = v[i] - (-PI*PI*sin(PI*i*h));
     sqsum += a*a;
   }
 
   l2_norm_interior = std::sqrt(h*sqsum);
 
-  a = v[0] - (-PI*PI*sin(PI*0.0));
-  sqsum += a*a;
+  for(int i= 0; i < height_l; ++i) {
+    a = v[0] - (-PI*PI*sin(PI*0.0));
+    sqsum += a*a;
+  }
 
-  a = v[n_nodes_tot-1] - (-PI*PI*sin(PI*1.0));
-  sqsum += a*a;
+  for(int i = n_nodes_tot-(height_r+1); i < n_nodes_tot; ++i) {
+    a = v[n_nodes_tot-1] - (-PI*PI*sin(PI*1.0));
+    sqsum += a*a;
+  }
 
   l2_norm = std::sqrt(h*sqsum);
 }
 
 
-int main(int argc, char *argv[])
+template <typename OperatorType>
+bool test_operator(OperatorType op, float interior_p_ref, float full_p_ref)
 {
   const int n_tests = 7;
   double full_norms[n_tests];
@@ -78,7 +73,7 @@ int main(int argc, char *argv[])
   unsigned int size = 40;
 
   for(int i=0; i<n_tests; i++) {
-    compute_l2_norm(size,full_norms[i],interior_norms[i]);
+    compute_l2_norm(op,size,full_norms[i],interior_norms[i]);
     size *= 2;
   }
 
@@ -96,21 +91,28 @@ int main(int argc, char *argv[])
     double interior_conv = interior_norms[i-1] / interior_norms[i];
     double interior_p = std::log2(interior_conv);
     printf("%6d %12.4g %7.3g (%.1f)   %12.4g %8.3g (%.1f)\n",size,full_norms[i],full_conv,full_p,
-           interior_norms[i],interior_conv,interior_p);
+     interior_norms[i],interior_conv,interior_p);
     size *= 2;
 
-    all_conv = all_conv && (interior_p > 1.99 && full_p > 1.499);
+    all_conv = all_conv && (interior_p > interior_p_ref && full_p > full_p_ref);
   }
-
-
   printf("\n");
   if(all_conv) {
     printf("Proper convergence order attained\n");
-    return 0;
   }
   else {
     printf("Proper convergence NOT attained\n");
-    return 1;
   }
+  return all_conv;
+}
 
+int main(int argc, char *argv[])
+{
+  printf("Second order Upwind:\n");
+  bool all_conv = test_operator(stenseal::upwind_operator_2nd_order(),1.99,1.499);
+
+  printf("\n Kalles Second order Upwind:\n");
+  all_conv = test_operator(stenseal::upwind_operator_2nd_order(),1.99,1.499);
+
+  return 0;
 }

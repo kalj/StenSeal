@@ -35,6 +35,8 @@ namespace stenseal
     const StencilArray<width_boundary_r,height_boundary_r> rboundary;
     const Stencil<width_interior> interior;
   public:
+    const static int height_r = width_boundary_l;
+    const static int height_l = height_boundary_l;
 
     /**
      * Constructor. Takes the interior `Stencil` `i`, and the `StencilArray`s
