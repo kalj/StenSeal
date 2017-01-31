@@ -23,7 +23,7 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   // FIXME: call without points once default values are supported
   typedef stenseal::CartesianGeometry<dim> Geometry;
   Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
-                    dealii::Point<dim>(1.0));
+    dealii::Point<dim>(1.0));
 
   stenseal::UpwindBlockOperator<dim,OperatorType,Geometry> op(Dm,geometry);
 
@@ -43,7 +43,7 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   // compute norms
   double sqsum = 0;
   double a;
-  for(int i = height_l; i < n_nodes_tot-(height_r+1); ++i) {
+  for(int i = height_l +6; i < n_nodes_tot-(height_r+6); ++i) {
     a = v[i] - (-PI*PI*sin(PI*i*h));
     sqsum += a*a;
   }
@@ -51,12 +51,12 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   l2_norm_interior = std::sqrt(h*sqsum);
 
   for(int i= 0; i < height_l; ++i) {
-    a = v[0] - (-PI*PI*sin(PI*0.0));
+    a = v[0] - (-PI*PI*sin(PI*i*h));
     sqsum += a*a;
   }
 
   for(int i = n_nodes_tot-(height_r+1); i < n_nodes_tot; ++i) {
-    a = v[n_nodes_tot-1] - (-PI*PI*sin(PI*1.0));
+    a = v[n_nodes_tot-1] - (-PI*PI*sin(PI*i*h));
     sqsum += a*a;
   }
 
@@ -112,7 +112,13 @@ int main(int argc, char *argv[])
   bool all_conv = test_operator(stenseal::upwind_operator_2nd_order(),1.99,1.499);
 
   printf("\n Kalles Second order Upwind:\n");
-  all_conv = test_operator(stenseal::upwind_operator_2nd_order(),1.99,1.499);
+  all_conv = test_operator(stenseal::upwind_operator_2nd_order_kalle(),1.99,1.499);
+
+  printf("\n Third order Upwind:\n");
+  all_conv = test_operator(stenseal::upwind_operator_3rd_order(),2.9,2.40);
+
+  printf("\n Fourth order Upwind:\n");
+  all_conv = test_operator(stenseal::upwind_operator_4th_order(),3.9,2.40);
 
   return 0;
 }

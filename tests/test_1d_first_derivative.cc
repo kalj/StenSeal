@@ -32,7 +32,7 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   }
 
   dealii::Vector<double> v(n_nodes_tot);
-  Dm.apply(v,u,n_nodes_tot);
+  Dm.apply_dp(v,u,n_nodes_tot);
 
   int height_r = OperatorType::height_r;
   int height_l = OperatorType::height_l;
@@ -47,13 +47,14 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
 
   l2_norm_interior = std::sqrt(h*sqsum);
 
+
   for(int i= 0; i < height_l; ++i) {
-   a = 1/h*v[0] - (PI*cos(PI*0.0));
+   a = 1/h*v[0] - (PI*cos(PI*i*h));
     sqsum += a*a;
   }
 
   for(int i = n_nodes_tot-(height_r); i < n_nodes_tot; ++i) {
-    a = 1/h*v[n_nodes_tot-1] - (PI*cos(PI*1.0));
+    a = 1/h*v[n_nodes_tot-1] - (PI*cos(PI*i*h));
     sqsum += a*a;
   }
 
@@ -110,6 +111,12 @@ int main(int argc, char *argv[])
 
   printf("\n Kalles Second order Upwind:\n");
   all_conv = test_operator(stenseal::upwind_operator_2nd_order(),1.9,1.4);
+
+  printf("\n Third order Upwind:\n");
+  all_conv = test_operator(stenseal::upwind_operator_3rd_order(),2.9,2.4);
+
+  printf("\n Fourth order Upwind:\n");
+  all_conv = test_operator(stenseal::upwind_operator_4th_order(),3.9,2.4);
 
   return 0;
 }
