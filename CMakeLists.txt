@@ -41,8 +41,8 @@ TARGET_LINK_LIBRARIES(${LIBNAME} ${DEAL_II_LIB})
 
 
 # Tests
-ADD_EXECUTABLE(test_1d_upwind_block_operator tests/test_1d_upwind_block_operator.cc)
-TARGET_LINK_LIBRARIES(test_1d_upwind_block_operator stenseal)
+ADD_EXECUTABLE(test_1d_upwind_laplace tests/test_1d_upwind_laplace.cc)
+TARGET_LINK_LIBRARIES(test_1d_upwind_laplace stenseal)
 
 ADD_EXECUTABLE(test_1d_first_derivative tests/test_1d_first_derivative.cc)
 TARGET_LINK_LIBRARIES(test_1d_first_derivative stenseal)
