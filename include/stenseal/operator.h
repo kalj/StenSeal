@@ -37,6 +37,7 @@ namespace stenseal
   public:
     const static int height_r = width_boundary_l;
     const static int height_l = height_boundary_l;
+    const static int width_i = width_interior;
 
     /**
      * Constructor. Takes the interior `Stencil` `i`, and the `StencilArray`s
