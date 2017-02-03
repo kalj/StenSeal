@@ -32,8 +32,11 @@ SET (CMAKE_CXX_STANDARD 14)
 # set up testing
 ENABLE_TESTING()
 MACRO(STENSEAL_ADD_TEST _target)
-  ADD_TEST(ctest_build_test_code "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${_target})
-  ADD_TEST(ctest_run_test_code ${_target})
+  SET(test_build_target ctest_build_${_target})
+  SET(test_run_target ctest_run_${_target})
+  ADD_TEST(${test_build_target} "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target ${_target})
+  ADD_TEST(${test_run_target} ${_target})
+  SET_TESTS_PROPERTIES ( ${test_run_target} PROPERTIES DEPENDS ${test_build_target})
 ENDMACRO(STENSEAL_ADD_TEST)
 
 # add our include directory to search path
@@ -70,7 +73,3 @@ STENSEAL_ADD_TEST(test_1d_first_derivative)
 ADD_EXECUTABLE(test_1d_upwind_laplace tests/test_1d_upwind_laplace.cc)
 TARGET_LINK_LIBRARIES(test_1d_upwind_laplace stenseal)
 STENSEAL_ADD_TEST(test_1d_upwind_laplace)
-
-
-# set up tests
-SET_TESTS_PROPERTIES ( ctest_run_test_code PROPERTIES DEPENDS ctest_build_test_code)
