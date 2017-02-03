@@ -7,9 +7,10 @@ FIND_PACKAGE(deal.II 8.0 REQUIRED
   HINTS ${DEAL_II_DIR} ../ ../../ $ENV{DEAL_II_DIR}
   )
 
+STRING(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 IF (deal.II_FOUND)
     INCLUDE_DIRECTORIES(${DEAL_II_INCLUDE_DIRS})
-    IF (${CMAKE_BUILD_TYPE} STREQUAL "DEBUG")
+    IF (${uppercase_CMAKE_BUILD_TYPE} STREQUAL "DEBUG")
         LINK_DIRECTORIES(${DEAL_II_LIBRARIES_DEBUG})
         SET(DEAL_II_LIB
             ${DEAL_II_LIBRARIES_DEBUG}
@@ -25,7 +26,7 @@ ELSE()
     MESSAGE("-- DEAL.II package not found")
 ENDIF()
 
-# we crave 'modern' C++
+# we crave modern C++
 SET (CMAKE_CXX_STANDARD 14)
 
 # set up testing
