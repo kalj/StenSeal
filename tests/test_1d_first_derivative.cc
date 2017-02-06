@@ -27,35 +27,41 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
 
   dealii::Vector<double> u(n_nodes_tot);
 
+  auto test_function = [=](double x) { return sin(PI*x); };
+  auto test_function_first_derivative = [=](double x) { return PI*cos(PI*x); };
+
   for(int i = 0; i < n_nodes_tot; ++i) {
-    u[i] = sin(PI*i*h);
+    u[i] = test_function(i*h);
   }
 
   dealii::Vector<double> v(n_nodes_tot);
   Dm.apply(v,u,n_nodes_tot);
 
-  int height_r = OperatorType::height_r;
-  int height_l = OperatorType::height_l;
+  // exclude points affected by boundary stencil
+  const int height_r = OperatorType::height_r;
+  const int height_l = OperatorType::height_l;
+  const int width_i =  OperatorType::width_i;
+  const int left_offset = height_l +width_i-1;
+  const int right_offset = height_r + width_i - 1;
 
   // compute norms
   double sqsum = 0;
   double a;
-
-  for(int i = height_l; i < n_nodes_tot-(height_r); ++i) {
-    a = 1/h*v[i] - (PI*cos(PI*i*h));
+  for(int i = left_offset; i < n_nodes_tot-right_offset; ++i) {
+    a = 1/h*v[i] - test_function_first_derivative(i*h);
     sqsum += a*a;
   }
 
   l2_norm_interior = std::sqrt(h*sqsum);
 
-
-  for(int i= 0; i < height_l; ++i) {
-    a = 1/h*v[0] - (PI*cos(PI*i*h));
+  for(int i= 0; i < left_offset; ++i) {
+    a = 1/h*v[0] - test_function_first_derivative(i*h);
     sqsum += a*a;
   }
 
-  for(int i = n_nodes_tot-(height_r); i < n_nodes_tot; ++i) {
-    a = 1/h*v[n_nodes_tot-1] - (PI*cos(PI*i*h));
+
+  for(int i = n_nodes_tot-right_offset; i < n_nodes_tot; ++i) {
+    a = 1/h*v[n_nodes_tot-1] - test_function_first_derivative(i*h);
     sqsum += a*a;
   }
 
