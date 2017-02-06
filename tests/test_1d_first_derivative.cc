@@ -107,16 +107,16 @@ int main(int argc, char *argv[])
   bool all_conv = true;
 
   printf("Second order Upwind:\n");
-  all_conv = all_conv && test_operator(stenseal::upwind_operator_2nd_order(),1.9,1.4);
+  all_conv = test_operator(stenseal::upwind_operator_2nd_order(),1.9,1.4) && all_conv;
 
   printf("\n Kalles Second order Upwind:\n");
-  all_conv = all_conv && test_operator(stenseal::upwind_operator_2nd_order(),1.9,1.4);
+  all_conv = test_operator(stenseal::upwind_operator_2nd_order_kalle(),1.9,1.4) && all_conv;
 
   printf("\n Third order Upwind:\n");
-  all_conv = all_conv && test_operator(stenseal::upwind_operator_3rd_order(),2.9,2.4);
+  all_conv = test_operator(stenseal::upwind_operator_3rd_order(),2.9,2.4) && all_conv;
 
   printf("\n Fourth order Upwind:\n");
-  all_conv = all_conv && test_operator(stenseal::upwind_operator_4th_order(),3.8,2.4);
+  all_conv = test_operator(stenseal::upwind_operator_4th_order(),3.8,2.4) && all_conv;
 
   if(all_conv) {
     printf("Proper convergence order attained\n");
