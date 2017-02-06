@@ -41,7 +41,7 @@ namespace stenseal
     constexpr stenseal::Stencil<4> interior((1.0/6.0)*usym[-2] + (-1.0)*usym[-1] + (1.0/2.0)*usym[0] + (1.0/3.0)*usym[1]);
     constexpr stenseal::StencilArray<4,3> left_boundary_block((-11.0/9.0)*usym[0] + (13.0/9.0)*usym[1] + (-2.0/9.0)*usym[2] + 0*usym[3],
                                                    (-17.0/28.0)*usym[-1] + (3.0/14.0)*usym[0] + (11.0/28.0)*usym[1] + 0*usym[2],
-                                                   (1.0/23.0)*usym[-2] + (-1)*usym[-1] + (11.0/23.0)*usym[0] + (8.0/23.0)*usym[1]);
+                                                   (4.0/23.0)*usym[-2] + (-1)*usym[-1] + (11.0/23.0)*usym[0] + (8.0/23.0)*usym[1]);
     constexpr stenseal::StencilArray<5,3> right_boundary_block((4.0/23.0)*usym[-2] + (-24.0/23.0)*usym[-1] + (11.0/23.0)*usym[0] + (11.0/23.0)*usym[1] + (-2.0/23.0)*usym[2],
                                                            0*usym[-3] + (1.0/7.0)*usym[-2] + (-23.0/28.0)*usym[-1] + (3.0/14.0) *usym[0] + (13.0/28.0)*usym[1],
                                                            0*usym[-4] + 0*usym[-3] + (4.0/9.0)*usym[-2] + (-17.0/9.0)*usym[-1] + (13.0/9.0)*usym[0]);
