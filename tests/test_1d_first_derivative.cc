@@ -94,16 +94,15 @@ bool test_operator(OperatorType op, float interior_p_ref, float full_p_ref)
   double tol = 1e-12;
   bool all_conv = true;
   for(int i=1; i<n_tests; i++) {
-    if(tol < interior_norms[i]){
-      double full_conv = full_norms[i-1] / full_norms[i];
-      double full_p = std::log2(full_conv);
-      double interior_conv = interior_norms[i-1] / interior_norms[i];
-      double interior_p = std::log2(interior_conv);
-      printf("%6d %12.4g %7.3g (%.1f)   %12.4g %8.3g (%.1f)\n",size,full_norms[i],full_conv,full_p,
-             interior_norms[i],interior_conv,interior_p);
-      size *= 2;
-      all_conv = all_conv && (interior_p > interior_p_ref && full_p > full_p_ref);
-    }
+    double full_conv = full_norms[i-1] / full_norms[i];
+    double full_p = std::log2(full_conv);
+    double interior_conv = interior_norms[i-1] / interior_norms[i];
+    double interior_p = std::log2(interior_conv);
+    printf("%6d %12.4g %7.3g (%.1f)   %12.4g %8.3g (%.1f)\n",size,full_norms[i],full_conv,full_p,
+           interior_norms[i],interior_conv,interior_p);
+    size *= 2;
+    all_conv = all_conv && (interior_p > interior_p_ref && full_p > full_p_ref);
+    if( interior_norms[i] < tol) break;
   }
   printf("\n");
   return all_conv;
