@@ -10,7 +10,7 @@
 #include <deal.II/lac/vector.h>
 
 #include "stenseal/stencil.h"
-#include "stenseal/stencil_array.h"
+#include "stenseal/stencil_tensor.h"
 
 //=============================================================================
 // this is an operator in 1D
@@ -31,8 +31,8 @@ namespace stenseal
   class Operator
   {
   private:
-    const StencilArray<width_boundary_l,height_boundary_l> lboundary;
-    const StencilArray<width_boundary_r,height_boundary_r> rboundary;
+    const StencilTensor2D<height_boundary_l,width_boundary_l> lboundary;
+    const StencilTensor2D<height_boundary_r,width_boundary_r> rboundary;
     const Stencil<width_interior> interior;
   public:
     const static int height_r = width_boundary_l;
@@ -40,12 +40,12 @@ namespace stenseal
     const static int width_i = width_interior;
 
     /**
-     * Constructor. Takes the interior `Stencil` `i`, and the `StencilArray`s
+     * Constructor. Takes the interior `Stencil` `i`, and the `StencilTensor2D`s
      * `l` and `r` for the left and right boundaries respectively.
      */
     constexpr Operator(const Stencil<width_interior> i,
-                       const StencilArray<width_boundary_l,height_boundary_l> l,
-                       const StencilArray<width_boundary_r,height_boundary_r> r);
+                       const StencilTensor2D<height_boundary_l,width_boundary_l> l,
+                       const StencilTensor2D<height_boundary_r,width_boundary_r> r);
 
     /**
      * Apply this `Operator` to the vector `src` and write the result into
@@ -63,7 +63,6 @@ namespace stenseal
       const unsigned int n) const;
   };
 
-
   //---------------------------------------------------------------------------
   // Implementations
   //---------------------------------------------------------------------------
@@ -75,8 +74,8 @@ namespace stenseal
             int height_boundary_r>
   constexpr Operator<width_interior,width_boundary_l,height_boundary_l,width_boundary_r,height_boundary_r>
   ::Operator(const Stencil<width_interior> i,
-             const StencilArray<width_boundary_l,height_boundary_l> l,
-             const StencilArray<width_boundary_r,height_boundary_r> r)
+             const StencilTensor2D<height_boundary_l,width_boundary_l> l,
+             const StencilTensor2D<height_boundary_r,width_boundary_r> r)
       :interior(i), lboundary(l), rboundary(r)
   {}
 
