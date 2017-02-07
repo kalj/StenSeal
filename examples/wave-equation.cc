@@ -5,7 +5,7 @@
 
 #include "stenseal/geometry.h"
 #include "stenseal/operator.h"
-#include "stenseal/block_operator.h"
+#include "stenseal/upwind_laplace.h"
 
 
 template <int dim>
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
                             (-1.0)*usym[0] + 1.0*usym[1],   // left boundary
                             (-1.0)*usym[-1] + 1.0*usym[0]); // right boundary
 
-  stenseal::UpwindBlockOperator<dim,OperatorType,Geometry> op(Dm,geometry);
+  stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm,geometry);
 
 
   // TODO:

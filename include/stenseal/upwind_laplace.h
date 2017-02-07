@@ -3,8 +3,8 @@
  *
  */
 
-#ifndef _UPWIND_BLOCK_OPERATOR_H
-#define _UPWIND_BLOCK_OPERATOR_H
+#ifndef _UPWIND_LAPLACE_H
+#define _UPWIND_LAPLACE_H
 
 #include <deal.II/lac/vector.h>
 #include "stenseal/geometry.h"
@@ -13,24 +13,23 @@ namespace stenseal
 {
 
   /**
-   * Class representing a Upwind Laplace operator defined by the 1D 1st
+   * Class representing an Upwind Laplace operator defined by the 1D 1st
    * derivative "D-minus" operator DmT, on a `dim` dimensional grid block with
    * geometry defined by the type `Geometry`.
    */
   template <int dim, typename DmT, typename Geometry>
-  class UpwindBlockOperator
+  class UpwindLaplace
   {
   private:
     const DmT Dm;
     const Geometry geometry;
-    unsigned int n_nodes_tot;
 
   public:
   /**
    * Constructor. Takes the 1D D-minus Upwind SBP operator `dm`, and the
    * geometry descriptor `g` of this grid block.
    */
-    UpwindBlockOperator(const DmT dm, const Geometry &g);
+    UpwindLaplace(const DmT dm, const Geometry &g);
 
   /**
    * Apply this operator to the vector `src` writing the result into `dst`.
@@ -45,18 +44,17 @@ namespace stenseal
   //---------------------------------------------------------------------------
 
   template <int dim, typename DmT, typename Geometry>
-  UpwindBlockOperator<dim,DmT,Geometry>
-  ::UpwindBlockOperator(const DmT dm, const Geometry &g)
+  UpwindLaplace<dim,DmT,Geometry>
+  ::UpwindLaplace(const DmT dm, const Geometry &g)
     : Dm(dm), geometry(g)
   {}
 
 
   template <int dim, typename DmT, typename Geometry>
-  void UpwindBlockOperator<dim,DmT,Geometry>
+  void UpwindLaplace<dim,DmT,Geometry>
   ::apply(dealii::Vector<double> &dst,
           const dealii::Vector<double> &src) const
   {
-
 
     /*
       Ideas:
@@ -102,4 +100,4 @@ namespace stenseal
 
 }
 
-#endif /* _UPWIND_BLOCK_OPERATOR_H */
+#endif /* _UPWIND_LAPLACE_H */
