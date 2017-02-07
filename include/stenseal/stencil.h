@@ -43,11 +43,26 @@ namespace stenseal
   private:
     const std::array<double,width> weights;
     const std::array<int,width> offsets;
+
   public:
+    /**
+     * Constructor. Called explicitly with weights and offsets of matching
+     * length `width`, which for performance reasons should always be
+     * `constexpr`.
+     */
+    constexpr  Stencil(const std::array<double,width> w, const std::array<int,width> o);
+
+    /**
+     * Constructor. Only weights are specified; contiguous centered indexing is
+     * assumed. For even width, the center is assumed to be the left one of the
+     * two center points. For performance reasons the input should always be
+     * `constexpr`.
+     */
+    constexpr  Stencil(const std::array<double,width> w);
 
     /**
      * Constructor. Called with an expression of matching length `width` as
-     * input, which for performance reasons should always be a `constexpr`.
+     * input, which for performance reasons should always be `constexpr`.
      */
     constexpr  Stencil(const Sum<width> s);
 
@@ -60,12 +75,29 @@ namespace stenseal
     /**
      * Function for applying the flipped/reversed stencil.
      */
-    inline double apply_fliplr(const dealii::Vector<double> &u, int i) const;
+    inline double apply_flip(const dealii::Vector<double> &u, int i) const;
+
+    constexpr inline double apply(const std::array<double,width> &u) const;
+    constexpr inline double apply_flip(const std::array<double,width> &u) const;
   };
 
   //=============================================================================
   // Implementations
   //=============================================================================
+
+  template <int m>
+  struct gen_offsets;
+
+
+  template <int width>
+  constexpr  Stencil<width>::Stencil(const std::array<double,width> w, const std::array<int,width> o)
+    : weights(w), offsets(o)
+  {}
+
+  template <int width>
+  constexpr  Stencil<width>::Stencil(const std::array<double,width> w)
+    : weights(w), offsets(gen_offsets<width>::value)
+  {}
 
   template <int width>
   constexpr  Stencil<width>::Stencil(const Sum<width> s)
@@ -83,7 +115,7 @@ namespace stenseal
   }
 
   template <int width>
-  inline double Stencil<width>::apply_fliplr(const dealii::Vector<double> &u, int i) const
+  inline double Stencil<width>::apply_flip(const dealii::Vector<double> &u, int i) const
   {
     double t=0;
     for(int j = width-1; j >= 0; --j) {
@@ -92,8 +124,26 @@ namespace stenseal
     return t;
   }
 
+  // helper for compile-time computing of dot product of two std::arrays
+  template<bool flip,typename T, std::size_t N>
+  constexpr T compile_time_dot_product(std::array<T, N> const &A, std::array<T, N> const &B, int const i = 0) {
+    return (i < N)? A[flip?N-1-i:i]*B[i] + compile_time_dot_product<flip>(A, B, i + 1) : T(0);
+  }
+
+  template <int width>
+  constexpr inline double Stencil<width>::apply(const std::array<double,width> &u) const
+  {
+    return compile_time_dot_product<false>(weights,u);
+  }
+
+  template <int width>
+  constexpr inline double Stencil<width>::apply_flip(const std::array<double,width> &u) const
+  {
+    return compile_time_dot_product<true>(weights,u);
+  }
+
   //=============================================================================
-  // append to std::array
+  // append/prepend to std::array
   //=============================================================================
 
   template <typename T, std::size_t N, std::size_t... I>
@@ -108,6 +158,44 @@ namespace stenseal
   {
     return append_aux(a, t, std::make_index_sequence<N>());
   }
+
+  template <typename T, std::size_t N, std::size_t... I>
+  constexpr std::array<T, N + 1> prepend_aux(T t,const std::array<T, N> a,
+                                             const std::index_sequence<I...>)
+  {
+    return std::array<T, N + 1>{t, a[I]... };
+  }
+
+  template <typename T, std::size_t N>
+  constexpr std::array<T, N+1> prepend(const T t, const std::array<T, N> a)
+  {
+    return prepend_aux(t,a, std::make_index_sequence<N>());
+  }
+
+  // generate contiguous list of offsets centered around 0
+  template <>
+  struct gen_offsets<1>
+  {
+    static constexpr std::array<int,1> value{0};
+  };
+
+  template <>
+  struct gen_offsets<2>
+  {
+    static constexpr std::array<int,2> value{0,1};
+  };
+
+  template <int m>
+  struct gen_offsets
+  {
+    static constexpr std::array<int,m> value = prepend((m%2==0)-m/2, append(gen_offsets<m-2>::value, m/2));
+  };
+
+  template <int m>
+  constexpr std::array<int,m> gen_offsets<m>::value;
+
+  constexpr std::array<int,1> gen_offsets<1>::value;
+  constexpr std::array<int,2> gen_offsets<2>::value;
 
 
   //=============================================================================

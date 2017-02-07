@@ -29,6 +29,8 @@ namespace stenseal
     const std::array<Inner,n> stencils;
 
   public:
+    const static int inner_dim = Inner::inner_dim;
+    typedef StencilTensor<n,typename Inner::result_type> result_type;
 
     template <typename... Ss>
     constexpr  StencilTensor(const Ss... s);
@@ -38,6 +40,9 @@ namespace stenseal
      */
     inline constexpr const Inner& operator[](int row) const;
 
+    inline constexpr result_type apply_inner(const std::array<double,inner_dim> &src) const;
+
+    inline constexpr result_type apply_inner_flip(const std::array<double,inner_dim> &src) const;
   };
 
   template <int n, int m>
@@ -47,6 +52,8 @@ namespace stenseal
     const std::array<Stencil<m>,n> stencils;
 
   public:
+    typedef Stencil<n> result_type;
+    const static int inner_dim = m;
 
     template <typename... Ss>
     constexpr StencilTensor(const Ss... s);
@@ -55,6 +62,10 @@ namespace stenseal
      * Access a specific row of the block.
      */
     constexpr inline const Stencil<m>& operator[](int row) const;
+
+    constexpr inline const result_type apply_inner(const std::array<double,m> &src) const;
+
+    constexpr inline const result_type apply_inner_flip(const std::array<double,m> &src) const;
 
   };
 
@@ -102,6 +113,20 @@ namespace stenseal
     return stencils[row];
   }
 
+  template <int n, typename Inner>
+  inline constexpr typename StencilTensor<n,Inner>::result_type
+  StencilTensor<n,Inner>::apply_inner(const std::array<double,inner_dim> &src) const
+  {
+    return result_type{for_each_apply(stencils,src)};
+  }
+
+  template <int n, typename Inner>
+  inline constexpr typename StencilTensor<n,Inner>::result_type
+  StencilTensor<n,Inner>::apply_inner_flip(const std::array<double,inner_dim> &src) const
+  {
+    return result_type{for_each_apply_flip(stencils,src)};
+  }
+
 
   // base case explicit specialization
   template <int n, int m>
@@ -116,6 +141,18 @@ namespace stenseal
   inline constexpr const Stencil<m>& StencilTensor<n,Stencil<m>>::operator[](int row) const
   {
     return stencils[row];
+  }
+
+  template <int n, int m>
+  inline constexpr const Stencil<n> StencilTensor<n,Stencil<m>>::apply_inner(const std::array<double,m> &src) const
+  {
+    return Stencil<n>{for_each_apply(stencils,src)};
+  }
+
+  template <int n, int m>
+  inline constexpr const Stencil<n> StencilTensor<n,Stencil<m>>::apply_inner_flip(const std::array<double,m> &src) const
+  {
+    return Stencil<n>{for_each_apply_flip(stencils,src)};
   }
 
 }

@@ -113,15 +113,15 @@ namespace stenseal
            const unsigned int n) const
   {
     for(int i = 0; i < height_boundary_r; ++i) {
-      dst[i] = -rboundary[height_boundary_r-1-i].apply_fliplr(src,i);
+      dst[i] = -rboundary[height_boundary_r-1-i].apply_flip(src,i);
     }
 
     for(int i = height_boundary_r; i < n-height_boundary_l; ++i) {
-      dst[i] = -interior.apply_fliplr(src,i);
+      dst[i] = -interior.apply_flip(src,i);
     }
 
     for(int i = n-height_boundary_l; i < n; ++i) {
-      dst[i] = -lboundary[n-1-i].apply_fliplr(src,i);
+      dst[i] = -lboundary[n-1-i].apply_flip(src,i);
     }
   }
 
