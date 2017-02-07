@@ -48,12 +48,7 @@ namespace stenseal
   UpwindBlockOperator<dim,DmT,Geometry>
   ::UpwindBlockOperator(const DmT dm, const Geometry &g)
     : Dm(dm), geometry(g)
-  {
-    n_nodes_tot = 1;
-    for(int d = 0; d < dim; ++d) {
-      n_nodes_tot *= g.n_nodes[d];
-    }
-  }
+  {}
 
 
   template <int dim, typename DmT, typename Geometry>
@@ -71,11 +66,11 @@ namespace stenseal
 
     if(dim==1) {
 
-      const unsigned int n = geometry.n_nodes[0];
+      const unsigned int n = geometry.get_n_nodes(0);
 
       // for now, use full temporary array
       // FIXME: this is stupid!! instead use blocking
-      dealii::Vector<double> tmp (n_nodes_tot);
+      dealii::Vector<double> tmp (geometry.get_n_nodes_total());
 
       //-------------------------------------------------------------------------
       // apply Dm
@@ -85,8 +80,9 @@ namespace stenseal
 
       // stupid inefficient way of multiplying with c and 1/h^2
       // FIXME: merge with above.
+      const auto &coeff = geometry.get_metric_coefficient();
       for(int i = 0; i<n; ++i) {
-        tmp[i] *= geometry.get_c(i);
+        tmp[i] *= coeff.get(i);
       }
 
       //-------------------------------------------------------------------------
@@ -94,6 +90,8 @@ namespace stenseal
       //-------------------------------------------------------------------------
       Dm.apply_dp(dst,tmp,n);
 
+      const double h2 = geometry.get_h(0)*geometry.get_h(0);
+      dst /= h2;
 
     }
     else {

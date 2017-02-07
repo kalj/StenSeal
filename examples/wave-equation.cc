@@ -41,21 +41,21 @@ template <int dim, typename Geometry>
 void initialize( dealii::Vector<double> &u, dealii::Function<dim> &f, const Geometry &g )
 {
   if(dim==1) {
-    for(int i = 0; i < g.n_nodes[0]; ++i) {
+    for(int i = 0; i < g.get_n_nodes(0); ++i) {
       double x;
-      x = i*g.h[0] + g.lower_left(0);
+      x = i*g.get_h(0) + g.get_lower_left(0);
       dealii::Point<dim> p(x);
       u[i] = f.value(p);
     }
   } else if(dim==2){
-    for(int i = 0; i < g.n_nodes[1]; ++i) {
-      for(int j = 0; j < g.n_nodes[0]; ++j) {
+    for(int i = 0; i < g.get_n_nodes(1); ++i) {
+      for(int j = 0; j < g.get_n_nodes(0); ++j) {
         double x;
         double y;
-        x = j*g.h[0] + g.lower_left(0);
-        y = i*g.h[1] + g.lower_left(1);
+        x = j*g.get_h(0) + g.get_lower_left(0);
+        y = i*g.get_h(1) + g.get_lower_left(1);
         dealii::Point<dim> p(x,y);
-        u[g.n_nodes[0]*i+j] = f.value(p);
+        u[g.get_n_nodes(0)*i+j] = f.value(p);
       }
     }
   }
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
   //=============================================================================
   // set up initial condition
   //=============================================================================
-  dealii::Vector<double> u(geometry.n_nodes_total);
+  dealii::Vector<double> u(geometry.get_n_nodes_total());
   InitialValues<dim> f;
   initialize<dim,Geometry>(u,f,geometry);
 
