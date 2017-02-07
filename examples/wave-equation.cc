@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
   //=============================================================================
   // upwind 2nd order operators
   //=============================================================================
-  typedef stenseal::Operator<2,2,1> OperatorType;
+  typedef stenseal::Operator<2,2,1,2,1> OperatorType;
   const stenseal::Symbol usym;
 
   // now define operator like this:
