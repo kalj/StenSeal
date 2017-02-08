@@ -60,7 +60,9 @@ namespace stenseal
 
     for(int i = 0; i < height_boundary; ++i) {
       const auto b = boundary[i].apply_inner(coeff.template get_left_boundary_array<width_boundary>());
-      dst[i] = b.apply(src,i);
+      // FIXME: temporary fix to apply generated stencil in a non-centered fashion
+      dst[i] = b.apply(src,(width_boundary-1)/2);
+      // dst[i] = b.apply(src,i);
     }
 
     for(int i = height_boundary; i < n-height_boundary; ++i) {
@@ -70,7 +72,9 @@ namespace stenseal
 
     for(int i = n-height_boundary; i < n; ++i) {
       const auto b = boundary[i-n+height_boundary].apply_inner_flip(coeff.template get_right_boundary_array<width_boundary>());
-      dst[i] = b.apply_flip(src,i);
+      // FIXME: temporary fix to apply generated stencil in a non-centered fashion
+      dst[i] = b.apply_flip(src,n-width_boundary+(width_boundary-1)/2);
+      // dst[i] = b.apply_flip(src,i);
     }
 
   }
