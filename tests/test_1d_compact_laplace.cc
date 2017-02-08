@@ -43,8 +43,6 @@ void compute_l2_norm(std::pair<OperatorTypeD2,OperatorTypeD1> ops, unsigned int 
 
   op.apply(v,u);
 
-  std::cout << "  n=" << n << std::endl;
-  v.print(std::cout);
 
   // exclude points affected by boundary stencil
   const int height_bdry = 2;
@@ -139,11 +137,13 @@ int main(int argc, char *argv[])
                                                        0.0*sym[-1]    + (0.5)*sym[0] + (0.5)*sym[1]);
 
 
-  constexpr stenseal::StencilTensor3D<2,2,2> d2_boundary( stenseal::StencilTensor2D<2,2>((-0.5)*sym[0]  + (-0.5)*sym[1],
-                                                                                         (0.5)*sym[-1]  + (0.5)*sym[0]),
-                                                          stenseal::StencilTensor2D<2,2>((0.5)*sym[0]   + (0.5)*sym[1],
-                                                                                         (-0.5)*sym[-1] + (-0.5)*sym[0]));
-  constexpr stenseal::MetricOperator<3,2,2> D2 (d2_interior,
+  constexpr stenseal::StencilTensor3D<2,3,3> d2_boundary( stenseal::StencilTensor2D<3,3>((2.0)*sym[0]   + (-1.0)*sym[1]  + (0.0)*sym[2],
+                                                                                         (-3.0)*sym[-1] + (1.0)*sym[0]   + (0.0)*sym[1],
+                                                                                         (1.0)*sym[-2]  + (0.0)*sym[-1]  + (0.0)*sym[0]),
+                                                          stenseal::StencilTensor2D<3,3>((0.5)*sym[0]   + (0.5)*sym[1]   + (0.0)*sym[2],
+                                                                                         (-0.5)*sym[-1] + (-1.0)*sym[0]  + (-0.5)*sym[1],
+                                                                                         (0.0)*sym[-2]  + (0.5)*sym[-1] + (0.5)*sym[0]));
+  constexpr stenseal::MetricOperator<3,3,2> D2 (d2_interior,
                                                 d2_boundary);
 
   all_conv = test_operator(std::make_pair(D2,D1),1.9,1.4) && all_conv;
