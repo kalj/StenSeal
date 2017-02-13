@@ -47,6 +47,32 @@ namespace stenseal
 
   };
 
+  template <int dim>
+  class GeneralGeometry {
+  private:
+    const std::vector<dealii::Point<dim>> nodes;
+    std::array<unsigned int,dim> n_nodes;
+    unsigned int n_nodes_total;
+
+  public:
+
+    GeneralGeometry(const std::array<unsigned int,dim> n_nodes,
+                    const std::vector<dealii::Point<dim>> points);
+
+    unsigned get_n_nodes(int d) const
+    {
+      return n_nodes[d];
+    }
+
+    unsigned get_n_nodes_total() const
+    {
+      return n_nodes_total;
+    }
+
+    void initialize_vector(dealii::Vector<double> &u,
+                           dealii::Function<dim> &f) const;
+
+  };
 
 
   /*

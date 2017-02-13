@@ -42,7 +42,36 @@ namespace stenseal {
   }
 
 
+  template <int dim>
+  GeneralGeometry<dim>::GeneralGeometry(const std::array<unsigned int,dim> n_nodes,
+                                        const std::vector<dealii::Point<dim>> points)
+    : n_nodes(n_nodes), nodes(points)
+  {
+    n_nodes_total=1;
+    for(int d = 0; d < dim; ++d) {
+      n_nodes_total *=n_nodes[d];
+    }
+  }
+
+  template <int dim>
+  void GeneralGeometry<dim>::initialize_vector(dealii::Vector<double> &u,
+                                               dealii::Function<dim> &f) const
+  {
+    if(dim<4 && dim>0) {
+      for(int i = 0; i < n_nodes_total; ++i) {
+        u[i] = f.value(nodes[i]);
+      }
+    }
+    else {
+      AssertThrow(false,dealii::ExcNotImplemented());
+    }
+  }
+
+
   template class CartesianGeometry<1>;
   template class CartesianGeometry<2>;
+
+  template class GeneralGeometry<1>;
+  template class GeneralGeometry<2>;
 
 }
