@@ -1,4 +1,5 @@
 #include "stenseal/geometry.h"
+#include <deal.II/base/function.h>
 
 namespace stenseal {
 
@@ -13,6 +14,13 @@ namespace stenseal {
       n_nodes_total *=n_nodes[d];
       h[d] = (upper_right[d]-lower_left[d])/(n_nodes[d]-1);
     }
+  }
+
+  template <int dim>
+  void CartesianGeometry<dim>::initialize_vector(dealii::Vector<double> &u,
+                                                 const std::function<double (const dealii::Point<dim>&)> &f) const
+  {
+    initialize_vector(u, dealii::ScalarFunctionFromFunctionObject<dim>(f));
   }
 
   template <int dim>
@@ -66,6 +74,13 @@ namespace stenseal {
     for(int d = 0; d < dim; ++d) {
       n_nodes_total *=n_nodes[d];
     }
+  }
+
+  template <int dim>
+  void GeneralGeometry<dim>::initialize_vector(dealii::Vector<double> &u,
+                                               const std::function<double (const dealii::Point<dim>&)> &f) const
+  {
+    initialize_vector(u, dealii::ScalarFunctionFromFunctionObject<dim>(f));
   }
 
   template <int dim>

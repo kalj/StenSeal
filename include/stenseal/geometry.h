@@ -46,6 +46,9 @@ namespace stenseal
     void initialize_vector(dealii::Vector<double> &u,
                            const dealii::Function<dim> &f) const;
 
+    void initialize_vector(dealii::Vector<double> &u,
+                           const std::function<double (const dealii::Point<dim> &)> &f) const;
+
   };
 
   template <int dim>
@@ -74,6 +77,8 @@ namespace stenseal
     void initialize_vector(dealii::Vector<double> &u,
                            const dealii::Function<dim> &f) const;
 
+    void initialize_vector(dealii::Vector<double> &u,
+                           const std::function<double (const dealii::Point<dim> &)> &f) const;
   };
 
 
