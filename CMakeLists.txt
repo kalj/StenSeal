@@ -29,6 +29,10 @@ ENDIF()
 # we crave modern C++
 SET (CMAKE_CXX_STANDARD 14)
 
+# we also crave optimal optimizations
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -mtune=native")
+
+
 # set up testing
 ENABLE_TESTING()
 MACRO(STENSEAL_ADD_TEST _target)
