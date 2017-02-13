@@ -59,6 +59,9 @@ TARGET_LINK_LIBRARIES(${LIBNAME} ${DEAL_II_LIB})
 ADD_EXECUTABLE(wave-equation examples/wave-equation.cc)
 TARGET_LINK_LIBRARIES(wave-equation ${LIBNAME})
 
+# 1d upwind operator benchmarks
+ADD_EXECUTABLE(benchmarks_1d examples/benchmarks_1d.cc)
+TARGET_LINK_LIBRARIES(benchmarks_1d ${LIBNAME})
 
 #------------------------------------------------------------------------------
 # Tests
