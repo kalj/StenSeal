@@ -97,6 +97,27 @@ namespace stenseal {
     }
   }
 
+  namespace internal
+  {
+    template <>
+    dealii::Point<1> repeat_point(double d)
+    {
+      return dealii::Point<1>(d);
+    }
+
+    template <>
+    dealii::Point<2> repeat_point(double d)
+    {
+      return dealii::Point<2>(d,d);
+    }
+
+    template <>
+    dealii::Point<3> repeat_point(double d)
+    {
+      return dealii::Point<3>(d,d,d);
+    }
+
+  }
 
   template class CartesianGeometry<1>;
   template class CartesianGeometry<2>;

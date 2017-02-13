@@ -12,6 +12,12 @@
 
 namespace stenseal
 {
+  namespace internal
+  {
+    template <int dim>
+    dealii::Point<dim> repeat_point(double d);
+  }
+
 
   template <int dim>
   class CartesianGeometry
@@ -23,10 +29,10 @@ namespace stenseal
     dealii::Point<dim> lower_left;
 
   public:
-    // FIXME: add default parameters which are [0,0,0,0....] and [1,1,1,1,...]
+
     CartesianGeometry(const std::array<unsigned int,dim> n_nodes,
-                      const dealii::Point<dim> lower_left,
-                      const dealii::Point<dim> upper_right);
+                      const dealii::Point<dim> lower_left=internal::repeat_point<dim>(0.0),
+                      const dealii::Point<dim> upper_right=internal::repeat_point<dim>(1.0));
 
     unsigned get_n_nodes(int d) const
     {
