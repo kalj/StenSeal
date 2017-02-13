@@ -14,7 +14,8 @@ namespace stenseal
 {
 
   template <int dim>
-  class CartesianGeometry {
+  class CartesianGeometry
+  {
   private:
     std::array<double,dim> h;
     std::array<unsigned int,dim> n_nodes;
@@ -43,12 +44,13 @@ namespace stenseal
     }
 
     void initialize_vector(dealii::Vector<double> &u,
-                           dealii::Function<dim> &f) const;
+                           const dealii::Function<dim> &f) const;
 
   };
 
   template <int dim>
-  class GeneralGeometry {
+  class GeneralGeometry
+  {
   private:
     const std::vector<dealii::Point<dim>> nodes;
     std::array<unsigned int,dim> n_nodes;
@@ -70,7 +72,7 @@ namespace stenseal
     }
 
     void initialize_vector(dealii::Vector<double> &u,
-                           dealii::Function<dim> &f) const;
+                           const dealii::Function<dim> &f) const;
 
   };
 

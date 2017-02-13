@@ -17,22 +17,37 @@ namespace stenseal {
 
   template <int dim>
   void CartesianGeometry<dim>::initialize_vector(dealii::Vector<double> &u,
-                                                 dealii::Function<dim> &f) const
+                                                 const dealii::Function<dim> &f) const
   {
     if(dim==1) {
       for(int i = 0; i < n_nodes[0]; ++i) {
-        double x = i*h[0] + lower_left(0);
-        dealii::Point<dim> p(x);
+        const double x = i*h[0] + lower_left(0);
+        const dealii::Point<dim> p(x);
         u[i] = f.value(p);
       }
     }
     else if(dim==2){
-      for(int i = 0; i < n_nodes[1]; ++i) {
-        for(int j = 0; j < n_nodes[0]; ++j) {
-          double x = j*h[0] + lower_left(0);
-          double y = i*h[1] + lower_left(1);
-          dealii::Point<dim> p(x,y);
-          u[n_nodes[0]*i+j] = f.value(p);
+      for(int iy = 0; iy < n_nodes[1]; ++iy) {
+        for(int ix = 0; ix < n_nodes[0]; ++ix) {
+          const double x = ix*h[0] + lower_left(0);
+          const double y = iy*h[1] + lower_left(1);
+          const dealii::Point<dim> p(x,y);
+          const int idx = iy*n_nodes[0]+ix;
+          u[idx] = f.value(p);
+        }
+      }
+    }
+    else if(dim==3){
+      for(int iz = 0; iz < n_nodes[2]; ++iz) {
+        for(int iy = 0; iy < n_nodes[1]; ++iy) {
+          for(int ix = 0; ix < n_nodes[0]; ++ix) {
+            const double x = ix*h[0] + lower_left(0);
+            const double y = iy*h[1] + lower_left(1);
+            const double z = iz*h[2] + lower_left(2);
+            const dealii::Point<dim> p(x,y,z);
+            const int idx = (iz*n_nodes[1] + iy)*n_nodes[0]+ix;
+            u[idx] = f.value(p);
+          }
         }
       }
     }
@@ -55,7 +70,7 @@ namespace stenseal {
 
   template <int dim>
   void GeneralGeometry<dim>::initialize_vector(dealii::Vector<double> &u,
-                                               dealii::Function<dim> &f) const
+                                               const dealii::Function<dim> &f) const
   {
     if(dim<4 && dim>0) {
       for(int i = 0; i < n_nodes_total; ++i) {
@@ -70,8 +85,10 @@ namespace stenseal {
 
   template class CartesianGeometry<1>;
   template class CartesianGeometry<2>;
+  template class CartesianGeometry<3>;
 
   template class GeneralGeometry<1>;
   template class GeneralGeometry<2>;
+  template class GeneralGeometry<3>;
 
 }
