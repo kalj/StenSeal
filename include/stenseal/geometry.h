@@ -6,7 +6,9 @@
 #ifndef _GEOMETRY_H
 #define _GEOMETRY_H
 
+#include <deal.II/base/function.h>
 #include <deal.II/base/point.h>
+#include <deal.II/lac/vector.h>
 
 namespace stenseal
 {
@@ -25,28 +27,27 @@ namespace stenseal
                       const dealii::Point<dim> lower_left,
                       const dealii::Point<dim> upper_right);
 
-    inline unsigned get_n_nodes(int d) const
+    unsigned get_n_nodes(int d) const
     {
       return n_nodes[d];
     }
 
-    inline unsigned get_n_nodes_total() const
+    unsigned get_n_nodes_total() const
     {
       return n_nodes_total;
     }
 
-    inline double get_h(int d) const
+    double get_h(int d) const
     {
       return h[d];
     }
 
-
-    inline double get_lower_left(int d) const
-    {
-      return lower_left(d);
-    }
+    void initialize_vector(dealii::Vector<double> &u,
+                           dealii::Function<dim> &f) const;
 
   };
+
+
 
   /*
   struct TransfiniteInterpolationGeometry {
