@@ -7,9 +7,11 @@
 #define _UPWIND_LAPLACE_H
 
 #include <deal.II/lac/vector.h>
-#include "stenseal/geometry.h"
 #include <deal.II/lac/sparsity_pattern.h>
 #include <deal.II/lac/sparse_matrix.h>
+
+#include "stenseal/geometry.h"
+#include "stenseal/metric_coefficient.h"
 
 namespace stenseal
 {
@@ -25,6 +27,7 @@ namespace stenseal
   private:
     const DmT Dm;
     const Geometry geometry;
+    const MetricCoefficient<dim,Geometry> coeff;
 
   public:
     /**
@@ -52,7 +55,7 @@ namespace stenseal
   template <int dim, typename DmT, typename Geometry>
   UpwindLaplace<dim,DmT,Geometry>
   ::UpwindLaplace(const DmT dm, const Geometry &g)
-    : Dm(dm), geometry(g)
+    : Dm(dm), geometry(g), coeff(g,dm)
   {}
 
 
@@ -84,7 +87,6 @@ namespace stenseal
 
       // stupid inefficient way of multiplying with c and 1/h^2
       // FIXME: merge with above.
-      const auto &coeff = geometry.get_metric_coefficient();
       for(int i = 0; i<n; ++i) {
         tmp[i] *= coeff.get(i);
       }
