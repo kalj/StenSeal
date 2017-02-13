@@ -3,7 +3,7 @@
 #include <deal.II/base/numbers.h>
 
 #include "stenseal/operator.h"
-#include "stenseal/block_operator.h"
+#include "stenseal/upwind_laplace.h"
 #include "stenseal/operator_lib.h"
 
 /**
@@ -25,7 +25,7 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
                     dealii::Point<dim>(1.0));
 
-  stenseal::UpwindBlockOperator<dim,OperatorType,Geometry> op(Dm,geometry);
+  stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm,geometry);
 
   dealii::Vector<double> u(n_nodes_tot);
 

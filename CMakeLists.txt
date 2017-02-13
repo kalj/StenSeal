@@ -73,3 +73,8 @@ STENSEAL_ADD_TEST(test_1d_first_derivative)
 ADD_EXECUTABLE(test_1d_upwind_laplace tests/test_1d_upwind_laplace.cc)
 TARGET_LINK_LIBRARIES(test_1d_upwind_laplace stenseal)
 STENSEAL_ADD_TEST(test_1d_upwind_laplace)
+
+# test for compact laplace in 1D
+ADD_EXECUTABLE(test_1d_compact_laplace tests/test_1d_compact_laplace)
+TARGET_LINK_LIBRARIES(test_1d_compact_laplace stenseal)
+STENSEAL_ADD_TEST(test_1d_compact_laplace)
