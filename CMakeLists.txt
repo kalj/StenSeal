@@ -57,7 +57,7 @@ TARGET_LINK_LIBRARIES(${LIBNAME} ${DEAL_II_LIB})
 
 # a wave equation solver
 ADD_EXECUTABLE(wave-equation examples/wave-equation.cc)
-TARGET_LINK_LIBRARIES(wave-equation stenseal)
+TARGET_LINK_LIBRARIES(wave-equation ${LIBNAME})
 
 
 #------------------------------------------------------------------------------
@@ -66,15 +66,15 @@ TARGET_LINK_LIBRARIES(wave-equation stenseal)
 
 # test for upwind first derivative in 1D
 ADD_EXECUTABLE(test_1d_first_derivative tests/test_1d_first_derivative.cc)
-TARGET_LINK_LIBRARIES(test_1d_first_derivative stenseal)
+TARGET_LINK_LIBRARIES(test_1d_first_derivative ${LIBNAME})
 STENSEAL_ADD_TEST(test_1d_first_derivative)
 
 # test for upwind laplace in 1D
 ADD_EXECUTABLE(test_1d_upwind_laplace tests/test_1d_upwind_laplace.cc)
-TARGET_LINK_LIBRARIES(test_1d_upwind_laplace stenseal)
+TARGET_LINK_LIBRARIES(test_1d_upwind_laplace ${LIBNAME})
 STENSEAL_ADD_TEST(test_1d_upwind_laplace)
 
 # test for compact laplace in 1D
 ADD_EXECUTABLE(test_1d_compact_laplace tests/test_1d_compact_laplace)
-TARGET_LINK_LIBRARIES(test_1d_compact_laplace stenseal)
+TARGET_LINK_LIBRARIES(test_1d_compact_laplace ${LIBNAME})
 STENSEAL_ADD_TEST(test_1d_compact_laplace)
