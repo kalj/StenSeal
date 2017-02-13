@@ -35,8 +35,10 @@ namespace stenseal
     const StencilTensor2D<height_boundary_r,width_boundary_r> rboundary;
     const Stencil<width_interior> interior;
   public:
-    const static int height_r = width_boundary_l;
+    const static int height_r = height_boundary_r;
     const static int height_l = height_boundary_l;
+    const static int width_r = width_boundary_r;
+    const static int width_l = width_boundary_l;
     const static int width_i = width_interior;
 
     /**
@@ -61,6 +63,14 @@ namespace stenseal
     void apply_dp(dealii::Vector<double> &dst,
       const dealii::Vector<double> &src,
       const unsigned int n) const;
+
+    Stencil<width_interior> get_interior_stencil() const;
+
+    StencilTensor2D<height_boundary_l,width_boundary_l> get_left_boundary_stencil() const;
+
+    StencilTensor2D<height_boundary_r,width_boundary_r> get_right_boundary_stencil() const;
+
+
   };
 
   //---------------------------------------------------------------------------
@@ -124,6 +134,38 @@ namespace stenseal
       dst[i] = -lboundary[n-1-i].apply_flip(src,i);
     }
   }
+
+ template <int width_interior,
+            int width_boundary_l,
+            int height_boundary_l,
+            int width_boundary_r,
+            int height_boundary_r>
+  Stencil<width_interior> Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
+  ::get_interior_stencil() const{
+   return interior;
+  }
+
+ template <int width_interior,
+            int width_boundary_l,
+            int height_boundary_l,
+            int width_boundary_r,
+            int height_boundary_r>
+  StencilTensor2D<height_boundary_l,width_boundary_l>  Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
+  ::get_left_boundary_stencil() const{
+    return lboundary;
+  }
+
+   template <int width_interior,
+            int width_boundary_l,
+            int height_boundary_l,
+            int width_boundary_r,
+            int height_boundary_r>
+
+  StencilTensor2D<height_boundary_r,width_boundary_r> Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
+  ::get_right_boundary_stencil() const{
+    return rboundary;
+  }
+
 
 }
 

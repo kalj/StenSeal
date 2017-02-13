@@ -59,6 +59,8 @@ TARGET_LINK_LIBRARIES(${LIBNAME} ${DEAL_II_LIB})
 ADD_EXECUTABLE(wave-equation examples/wave-equation.cc)
 TARGET_LINK_LIBRARIES(wave-equation stenseal)
 
+ADD_EXECUTABLE(matrix-build examples/matrix-build.cc)
+TARGET_LINK_LIBRARIES(matrix-build stenseal)
 
 #------------------------------------------------------------------------------
 # Tests

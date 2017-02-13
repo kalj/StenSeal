@@ -79,6 +79,11 @@ namespace stenseal
 
     constexpr inline double apply(const std::array<double,width> &u) const;
     constexpr inline double apply_flip(const std::array<double,width> &u) const;
+
+    std::array<double,width> get_weights() const;
+
+    std::array<int,width> get_offsets() const;
+
   };
 
   //=============================================================================
@@ -140,6 +145,18 @@ namespace stenseal
   constexpr inline double Stencil<width>::apply_flip(const std::array<double,width> &u) const
   {
     return compile_time_dot_product<true>(weights,u);
+  }
+
+  template <int width>
+  std::array<double,width> Stencil<width>::get_weights() const
+  {
+    return weights;
+  }
+
+  template <int width>
+  std::array<int,width> Stencil<width>::get_offsets() const
+  {
+    return offsets;
   }
 
   //=============================================================================
