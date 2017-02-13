@@ -1,6 +1,6 @@
 /* -*- c-basic-offset:2; tab-width:2; indent-tabs-mode:nil -*-
--*
--*/
+ *
+ */
 
 #ifndef _OPERATOR_H
 #define _OPERATOR_H
@@ -61,8 +61,8 @@ namespace stenseal
      * defined by reflecting and negating the corresponding matrix.
      */
     void apply_dp(dealii::Vector<double> &dst,
-      const dealii::Vector<double> &src,
-      const unsigned int n) const;
+                  const dealii::Vector<double> &src,
+                  const unsigned int n) const;
 
     Stencil<width_interior> get_interior_stencil() const;
 
@@ -86,7 +86,7 @@ namespace stenseal
   ::Operator(const Stencil<width_interior> i,
              const StencilTensor2D<height_boundary_l,width_boundary_l> l,
              const StencilTensor2D<height_boundary_r,width_boundary_r> r)
-      :interior(i), lboundary(l), rboundary(r)
+    :interior(i), lboundary(l), rboundary(r)
   {}
 
   template <int width_interior,
@@ -96,8 +96,8 @@ namespace stenseal
             int height_boundary_r>
   void Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
   ::apply(dealii::Vector<double> &dst,
-        const dealii::Vector<double> &src,
-        const unsigned int n) const
+          const dealii::Vector<double> &src,
+          const unsigned int n) const
   {
     for(int i = 0; i < height_boundary_l; ++i) {
       dst[i] = lboundary[i].apply(src,i);
@@ -119,8 +119,8 @@ namespace stenseal
             int height_boundary_r>
   void Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
   ::apply_dp(dealii::Vector<double> &dst,
-           const dealii::Vector<double> &src,
-           const unsigned int n) const
+             const dealii::Vector<double> &src,
+             const unsigned int n) const
   {
     for(int i = 0; i < height_boundary_r; ++i) {
       dst[i] = -rboundary[height_boundary_r-1-i].apply_flip(src,i);
@@ -135,17 +135,17 @@ namespace stenseal
     }
   }
 
- template <int width_interior,
+  template <int width_interior,
             int width_boundary_l,
             int height_boundary_l,
             int width_boundary_r,
             int height_boundary_r>
   Stencil<width_interior> Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
   ::get_interior_stencil() const{
-   return interior;
+    return interior;
   }
 
- template <int width_interior,
+  template <int width_interior,
             int width_boundary_l,
             int height_boundary_l,
             int width_boundary_r,
@@ -155,7 +155,7 @@ namespace stenseal
     return lboundary;
   }
 
-   template <int width_interior,
+  template <int width_interior,
             int width_boundary_l,
             int height_boundary_l,
             int width_boundary_r,
