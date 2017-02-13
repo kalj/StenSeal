@@ -18,7 +18,7 @@ void compute_l2_norm(std::pair<OperatorTypeD2,OperatorTypeD1> ops, unsigned int 
 {
   const int dim = 1;
 
-  unsigned int n_nodes[dim] = { n };
+  std::array<unsigned int,dim> n_nodes{ n };
   int n_nodes_tot = n_nodes[0];
   double h = 1.0/(n_nodes_tot-1);
   const double PI = dealii::numbers::PI;

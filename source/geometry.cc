@@ -3,15 +3,14 @@
 namespace stenseal {
 
   template <int dim>
-  CartesianGeometry<dim>::CartesianGeometry(unsigned int n_nodes[dim],
+  CartesianGeometry<dim>::CartesianGeometry(const std::array<unsigned int,dim> n_nodes,
                                             const dealii::Point<dim> lower_left,
                                             const dealii::Point<dim> upper_right)
+    : n_nodes(n_nodes), lower_left(lower_left)
   {
-    this->lower_left=lower_left;
-    this->n_nodes_total=1;
+    n_nodes_total=1;
     for(int d = 0; d < dim; ++d) {
-      this->n_nodes[d] = n_nodes[d];
-      this->n_nodes_total *=n_nodes[d];
+      n_nodes_total *=n_nodes[d];
       h[d] = (upper_right[d]-lower_left[d])/(n_nodes[d]-1);
     }
   }

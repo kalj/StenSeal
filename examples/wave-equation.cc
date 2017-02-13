@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
   double ymin = 0;
   double ymax = 1.0;
 
-  unsigned int n_nodes[dim] = { 10, 10 };
+  std::array<unsigned int,dim> n_nodes{ 10, 10 };
   dealii::Point<dim> lower_left(xmin,ymin);
   dealii::Point<dim> upper_right(xmax,ymax);
 

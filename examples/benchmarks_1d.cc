@@ -20,7 +20,7 @@ void benchmark_operator(OperatorType Dm)
 
   for(unsigned int n=1<<19; n<(1<<23); n<<=1) {
 
-    unsigned int n_nodes[dim] = { n };
+    std::array<unsigned int,dim> n_nodes{ n };
     int n_nodes_tot = n_nodes[0];
     double h = 1.0/(n_nodes_tot-1);
 

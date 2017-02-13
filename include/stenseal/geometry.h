@@ -16,14 +16,14 @@ namespace stenseal
   template <int dim>
   class CartesianGeometry {
   private:
-    double h[dim];
-    unsigned int n_nodes[dim];
+    std::array<double,dim> h;
+    std::array<unsigned int,dim> n_nodes;
     unsigned int n_nodes_total;
     dealii::Point<dim> lower_left;
 
   public:
     // FIXME: add default parameters which are [0,0,0,0....] and [1,1,1,1,...]
-    CartesianGeometry(unsigned int n_nodes[dim],
+    CartesianGeometry(const std::array<unsigned int,dim> n_nodes,
                       const dealii::Point<dim> lower_left,
                       const dealii::Point<dim> upper_right);
 
