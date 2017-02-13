@@ -29,6 +29,10 @@ ENDIF()
 # we crave modern C++
 SET (CMAKE_CXX_STANDARD 14)
 
+# we also crave optimal optimizations
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -mtune=native")
+
+
 # set up testing
 ENABLE_TESTING()
 MACRO(STENSEAL_ADD_TEST _target)
@@ -57,8 +61,11 @@ TARGET_LINK_LIBRARIES(${LIBNAME} ${DEAL_II_LIB})
 
 # a wave equation solver
 ADD_EXECUTABLE(wave-equation examples/wave-equation.cc)
-TARGET_LINK_LIBRARIES(wave-equation stenseal)
+TARGET_LINK_LIBRARIES(wave-equation ${LIBNAME})
 
+# 1d upwind operator benchmarks
+ADD_EXECUTABLE(benchmarks_1d examples/benchmarks_1d.cc)
+TARGET_LINK_LIBRARIES(benchmarks_1d ${LIBNAME})
 
 #------------------------------------------------------------------------------
 # Tests
@@ -66,15 +73,15 @@ TARGET_LINK_LIBRARIES(wave-equation stenseal)
 
 # test for upwind first derivative in 1D
 ADD_EXECUTABLE(test_1d_first_derivative tests/test_1d_first_derivative.cc)
-TARGET_LINK_LIBRARIES(test_1d_first_derivative stenseal)
+TARGET_LINK_LIBRARIES(test_1d_first_derivative ${LIBNAME})
 STENSEAL_ADD_TEST(test_1d_first_derivative)
 
 # test for upwind laplace in 1D
 ADD_EXECUTABLE(test_1d_upwind_laplace tests/test_1d_upwind_laplace.cc)
-TARGET_LINK_LIBRARIES(test_1d_upwind_laplace stenseal)
+TARGET_LINK_LIBRARIES(test_1d_upwind_laplace ${LIBNAME})
 STENSEAL_ADD_TEST(test_1d_upwind_laplace)
 
 # test for compact laplace in 1D
 ADD_EXECUTABLE(test_1d_compact_laplace tests/test_1d_compact_laplace)
-TARGET_LINK_LIBRARIES(test_1d_compact_laplace stenseal)
+TARGET_LINK_LIBRARIES(test_1d_compact_laplace ${LIBNAME})
 STENSEAL_ADD_TEST(test_1d_compact_laplace)
