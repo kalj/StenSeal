@@ -23,25 +23,26 @@ void compute_l2_norm(std::pair<OperatorTypeD2,OperatorTypeD1> ops, unsigned int 
   double h = 1.0/(n_nodes_tot-1);
   const double PI = dealii::numbers::PI;
 
-  // FIXME: call without points once default values are supported
   typedef stenseal::CartesianGeometry<dim> Geometry;
-  Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
-                    dealii::Point<dim>(1.0));
+  Geometry geometry(n_nodes);
 
   stenseal::CompactLaplace<dim,OperatorTypeD2,OperatorTypeD1,Geometry> op(ops.first,ops.second,geometry);
 
   dealii::Vector<double> u(n_nodes_tot);
 
-  auto test_function = [=](double x) { return sin(PI*x); };
-  auto test_function_second_derivative = [=](double x) { return -PI*PI*sin(PI*x); };
+  auto test_function =
+    [=](const dealii::Point<dim> &p) { return sin(PI*p(0)); };
+  auto test_function_2nd_derivative =
+    [=](const dealii::Point<dim> &p) { return -PI*PI*sin(PI*p(0)); };
 
-  for(int i = 0; i < n_nodes_tot; ++i) {
-    u[i] = test_function(i*h);
-  }
+  geometry.initialize_vector(u,test_function);
 
   dealii::Vector<double> v(n_nodes_tot);
 
   op.apply(v,u);
+
+  dealii::Vector<double> vref(n_nodes_tot);
+  geometry.initialize_vector(vref,test_function_2nd_derivative);
 
 
   // exclude points affected by boundary stencil
@@ -52,20 +53,20 @@ void compute_l2_norm(std::pair<OperatorTypeD2,OperatorTypeD1> ops, unsigned int 
   double sqsum = 0;
   double a;
   for(int i = bdry_offset; i < n_nodes_tot-bdry_offset; ++i) {
-    a = v[i] - test_function_second_derivative(i*h);
+    a = v[i] - vref[i];
     sqsum += a*a;
   }
 
   l2_norm_interior = std::sqrt(h*sqsum);
 
   for(int i= 0; i < bdry_offset; ++i) {
-    a = v[i] - test_function_second_derivative(i*h);
+    a = v[i] - vref[i];
     sqsum += a*a;
   }
 
 
   for(int i = n_nodes_tot-bdry_offset; i < n_nodes_tot; ++i) {
-    a = v[i] - test_function_second_derivative(i*h);
+    a = v[i] - vref[i];
     sqsum += a*a;
   }
 

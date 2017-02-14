@@ -20,22 +20,24 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   double h = 1.0/(n_nodes_tot-1);
   const double PI = dealii::numbers::PI;
 
-  // FIXME: call without points once default values are supported
   typedef stenseal::CartesianGeometry<dim> Geometry;
-  Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
-                    dealii::Point<dim>(1.0));
+  Geometry geometry(n_nodes);
 
   dealii::Vector<double> u(n_nodes_tot);
 
-  auto test_function = [=](double x) { return sin(PI*x); };
-  auto test_function_first_derivative = [=](double x) { return PI*cos(PI*x); };
+  auto test_function =
+    [=](const dealii::Point<dim> &p) { return sin(PI*p(0)); };
+  auto test_function_1st_derivative =
+    [=](const dealii::Point<dim> &p) { return PI*cos(PI*p(0)); };
 
-  for(int i = 0; i < n_nodes_tot; ++i) {
-    u[i] = test_function(i*h);
-  }
+  geometry.initialize_vector(u,test_function);
 
   dealii::Vector<double> v(n_nodes_tot);
   Dm.apply(v,u,n_nodes_tot);
+
+
+  dealii::Vector<double> vref(n_nodes_tot);
+  geometry.initialize_vector(vref,test_function_1st_derivative);
 
   // exclude points affected by boundary stencil
   const int height_r = OperatorType::height_r;
@@ -48,20 +50,20 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   double sqsum = 0;
   double a;
   for(int i = left_offset; i < n_nodes_tot-right_offset; ++i) {
-    a = 1/h*v[i] - test_function_first_derivative(i*h);
+    a = 1/h*v[i] - vref[i];
     sqsum += a*a;
   }
 
   l2_norm_interior = std::sqrt(h*sqsum);
 
   for(int i= 0; i < left_offset; ++i) {
-    a = 1/h*v[i] - test_function_first_derivative(i*h);
+    a = 1/h*v[i] - vref[i];
     sqsum += a*a;
   }
 
 
   for(int i = n_nodes_tot-right_offset; i < n_nodes_tot; ++i) {
-    a = 1/h*v[i] - test_function_first_derivative(i*h);
+    a = 1/h*v[i] - vref[i];
     sqsum += a*a;
   }
 
