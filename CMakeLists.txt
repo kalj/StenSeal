@@ -92,6 +92,11 @@ ADD_EXECUTABLE(test_1d_compact_laplace tests/test_1d_compact_laplace)
 TARGET_LINK_LIBRARIES(test_1d_compact_laplace ${LIBNAME})
 STENSEAL_ADD_TEST(test_1d_compact_laplace)
 
+# test for upwind laplace in 1D for general geometry
+ADD_EXECUTABLE(test_1d_general_upwind_laplace tests/test_1d_general_upwind_laplace.cc)
+TARGET_LINK_LIBRARIES(test_1d_general_upwind_laplace ${LIBNAME})
+STENSEAL_ADD_TEST(test_1d_general_upwind_laplace)
+
 # test for coefficient matrix upwind laplance
 ADD_EXECUTABLE(test_1d_upwind_laplace_matrix tests/test_1d_upwind_laplace_matrix.cc)
 TARGET_LINK_LIBRARIES(test_1d_upwind_laplace_matrix ${LIBNAME})
