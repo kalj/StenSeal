@@ -6,9 +6,7 @@
 #include "stenseal/upwind_laplace.h"
 #include "stenseal/operator_lib.h"
 
-/**
- * Test second order upwind laplace
- */
+#include <fstream>
 
 template <typename OperatorType>
 void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l2_norm_interior)
@@ -28,22 +26,19 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
     stenseal::CartesianGeometry<dim> g(n_nodes);
 
     dealii::Vector<double> xpos(n_nodes_tot);
-    g.initialize_vector(xpos,[] (const dealii::Point<dim> &p) { return p(0); });
+    g.initialize_vector(xpos,[] (const dealii::Point<dim> &p)
+                        { const double x= p(0);
+                          return x + 0.8*x*(2*x-1)*(1-x);
+                        });
 
-    // end points
-    nodes[0](0) = 0.0;
-    nodes[n_nodes[0]-1](0) = 1.0;
-
-    // jitter interior points
-    for(int i = 1; i < n_nodes[0]-1; ++i) {
-      double urand = (double)rand()/RAND_MAX;
-      nodes[i](0) = xpos[i] +  0.3*g.get_mapped_h(0)*(2.0*urand - 1.0);
+    for(int i = 0; i < n_nodes[0]; ++i) {
+      nodes[i](0) = xpos[i];
     }
   }
 
-  std::cout << "Points:" << std::endl;
-  for(auto p : nodes)
-    std::cout << p << std::endl;
+  // std::ofstream node_file("nodes.txt");
+  // for(auto p : nodes)
+  //   node_file << p << std::endl;
 
   typedef stenseal::GeneralGeometry<dim> Geometry;
   Geometry geometry(n_nodes,nodes);
@@ -68,14 +63,14 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   dealii::Vector<double> vref(n_nodes_tot);
   geometry.initialize_vector(vref,test_function_2nd_derivative);
 
-  std::cout << "u:" << std::endl;
-  u.print(std::cout);
+  // std::ofstream u_file("initial_condition.txt");
+  // u.print(u_file);
 
-  std::cout << "v:" << std::endl;
-  v.print(std::cout);
+  // std::ofstream v_file("2nd_derivative.txt");
+  // v.print(v_file);
 
-  std::cout << "vref:" << std::endl;
-  vref.print(std::cout);
+  // std::ofstream vref_file("ref_2nd_derivative.txt");
+  // vref.print(vref_file);
 
   // exclude points affected by boundary stencil
   const int height_r = OperatorType::height_r;
@@ -112,7 +107,7 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
 template <typename OperatorType>
 bool test_operator(OperatorType op, float interior_p_ref, float full_p_ref)
 {
-  const int n_tests = 2;
+  const int n_tests = 7;
   double full_norms[n_tests];
   double interior_norms[n_tests];
   unsigned int size = 40;
@@ -154,14 +149,14 @@ int main(int argc, char *argv[])
   printf("Second order Upwind:\n");
   all_conv = test_operator(stenseal::upwind_operator_2nd_order(),1.9,1.4) && all_conv;
 
-  // printf("\n Kalles Second order Upwind:\n");
-  // all_conv = test_operator(stenseal::upwind_operator_2nd_order_kalle(),1.9,1.4) && all_conv;
+  printf("\n Kalles Second order Upwind:\n");
+  all_conv = test_operator(stenseal::upwind_operator_2nd_order_kalle(),0.9,0.9) && all_conv;
 
-  // printf("\n Third order Upwind:\n");
-  // all_conv = test_operator(stenseal::upwind_operator_3rd_order(),2.9,1.4) && all_conv;
+  printf("\n Third order Upwind:\n");
+  all_conv = test_operator(stenseal::upwind_operator_3rd_order(),2.9,1.4) && all_conv;
 
-  // printf("\n Fourth order Upwind:\n");
-  // all_conv = test_operator(stenseal::upwind_operator_4th_order(),3.9,1.40) && all_conv;
+  printf("\n Fourth order Upwind:\n");
+  all_conv = test_operator(stenseal::upwind_operator_4th_order(),3.9,1.4) && all_conv;
 
 
   if(all_conv) {

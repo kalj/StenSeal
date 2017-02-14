@@ -126,8 +126,6 @@ namespace stenseal
       op.apply(c,xvals,n_points);
       c /= g.get_mapped_h(0);
 
-      std::cout << "Metric coefficient:" << std::endl;
-      c.print(std::cout);
     }
     else {
       AssertThrow(false,dealii::ExcNotImplemented());
