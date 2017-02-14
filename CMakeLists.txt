@@ -72,6 +72,11 @@ TARGET_LINK_LIBRARIES(benchmarks_1d ${LIBNAME})
 # Tests
 #------------------------------------------------------------------------------
 
+# test vector initialization in geometry
+ADD_EXECUTABLE(test_initialize_vector tests/test_initialize_vector.cc)
+TARGET_LINK_LIBRARIES(test_initialize_vector ${LIBNAME})
+STENSEAL_ADD_TEST(test_initialize_vector)
+
 # test for upwind first derivative in 1D
 ADD_EXECUTABLE(test_1d_first_derivative tests/test_1d_first_derivative.cc)
 TARGET_LINK_LIBRARIES(test_1d_first_derivative ${LIBNAME})
