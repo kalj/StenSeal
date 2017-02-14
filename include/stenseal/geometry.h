@@ -34,20 +34,11 @@ namespace stenseal
                       const dealii::Point<dim> lower_left=internal::repeat_point<dim>(0.0),
                       const dealii::Point<dim> upper_right=internal::repeat_point<dim>(1.0));
 
-    unsigned get_n_nodes(int d) const
-    {
-      return n_nodes[d];
-    }
+    unsigned get_n_nodes(int d) const;
 
-    unsigned get_n_nodes_total() const
-    {
-      return n_nodes_total;
-    }
+    unsigned get_n_nodes_total() const;
 
-    double get_h(int d) const
-    {
-      return h[d];
-    }
+    double get_mapped_h(int d) const;
 
     void initialize_vector(dealii::Vector<double> &u,
                            const dealii::Function<dim> &f) const;
@@ -64,21 +55,20 @@ namespace stenseal
     const std::vector<dealii::Point<dim>> nodes;
     std::array<unsigned int,dim> n_nodes;
     unsigned int n_nodes_total;
+    std::array<double,dim> h_mapped;
 
   public:
 
     GeneralGeometry(const std::array<unsigned int,dim> n_nodes,
                     const std::vector<dealii::Point<dim>> points);
 
-    unsigned get_n_nodes(int d) const
-    {
-      return n_nodes[d];
-    }
+    unsigned get_n_nodes(int d) const;
 
-    unsigned get_n_nodes_total() const
-    {
-      return n_nodes_total;
-    }
+    unsigned get_n_nodes_total() const;
+
+    double get_mapped_h(int d) const;
+
+    const std::vector<dealii::Point<dim>>& get_node_points() const;
 
     void initialize_vector(dealii::Vector<double> &u,
                            const dealii::Function<dim> &f) const;

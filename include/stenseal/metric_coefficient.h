@@ -24,96 +24,156 @@ namespace stenseal
   struct MetricCoefficient<dim,CartesianGeometry<dim>>
   {
     template <typename dummy>
-    constexpr MetricCoefficient(const CartesianGeometry<dim>&, const dummy&) {}
+      constexpr MetricCoefficient(const CartesianGeometry<dim>&, const dummy&);
 
-    constexpr double get(int) const
-    {
-      return 1.0;
-    }
+    constexpr double get(int) const;
 
     template <int n>
-      constexpr std::array<double, n> get_centered_array(int) const
-    {
-      return internal::repeat_value<n>(1.0);
-    }
+      constexpr std::array<double, n> get_centered_array(int) const;
 
     template <int n>
-      constexpr std::array<double, n> get_left_boundary_array() const
-    {
-      return internal::repeat_value<n>(1.0);
-    }
+      constexpr std::array<double, n> get_left_boundary_array() const;
 
     template <int n>
-      constexpr std::array<double, n> get_right_boundary_array() const
-    {
-      return internal::repeat_value<n>(1.0);
-    }
+      constexpr std::array<double, n> get_right_boundary_array() const;
   };
+
 
   template <int dim>
   struct MetricCoefficient<dim,GeneralGeometry<dim>>
   {
   private:
-    std::vector<double> c;
+    dealii::Vector<double> c;
     unsigned int n_points;
 
   public:
     template <typename DmOp>
     MetricCoefficient(const GeneralGeometry<dim> &g, const DmOp &op);
 
-    double get(int i) const
-    {
-      return c[i];
-    }
+    double get(int i) const;
 
     template <int n>
-      std::array<double, n> get_centered_array(int i) const
-    {
-      std::array<double, n> res;
-      const std::array<int, n> &offsets = internal::gen_offsets<n>::value;
-      for(int j = 0; j < n; ++j)
-        res[j] = c[i+offsets[j]];
-      return res;
-    }
+      std::array<double, n> get_centered_array(int i) const;
 
     template <int n>
-      std::array<double, n> get_left_boundary_array() const
-    {
-      std::array<double, n> res;
-      for(int j = 0; j < n; ++j)
-        res[j] = c[j];
-      return res;
-    }
+      std::array<double, n> get_left_boundary_array() const;
 
     template <int n>
-      std::array<double, n> get_right_boundary_array() const
-    {
-      std::array<double, n> res;
-      for(int j = 0; j < n; ++j)
-        res[j] = c[n_points-n+j];
-      return res;
-    }
+      std::array<double, n> get_right_boundary_array() const;
+
   };
 
 
+  //---------------------------------------------------------------------------
+  // implementations
+  //---------------------------------------------------------------------------
+
+  // for cartesian geometry
+  template <int dim>
+  template <typename dummy>
+  constexpr MetricCoefficient<dim,CartesianGeometry<dim>>
+    ::MetricCoefficient(const CartesianGeometry<dim>&,
+                        const dummy&)
+  {}
+
+  template <int dim>
+  constexpr double MetricCoefficient<dim,CartesianGeometry<dim>>::get(int) const
+  {
+    return 1.0;
+  }
+
+  template <int dim>
+  template <int n>
+  constexpr std::array<double, n> MetricCoefficient<dim,CartesianGeometry<dim>>
+    ::get_centered_array(int) const
+  {
+    return internal::repeat_value<n>(1.0);
+  }
+
+  template <int dim>
+  template <int n>
+  constexpr std::array<double, n> MetricCoefficient<dim,CartesianGeometry<dim>>
+    ::get_left_boundary_array() const
+  {
+    return internal::repeat_value<n>(1.0);
+  }
+
+  template <int dim>
+  template <int n>
+  constexpr std::array<double, n> MetricCoefficient<dim,CartesianGeometry<dim>>
+    ::get_right_boundary_array() const
+  {
+    return internal::repeat_value<n>(1.0);
+  }
+
+
+  // for general geometry
   template <int dim>
   template <typename DmOp>
   MetricCoefficient<dim,GeneralGeometry<dim>>::MetricCoefficient(const GeneralGeometry<dim> &g, const DmOp &op)
   {
-    if(dim==1) {
-      const std::vector<dealii::Point<dim>> &pts = g.get_points();
-      const unsigned int npts = pts.size();
-      std::vector<double> xvals(npts);
+    const std::vector<dealii::Point<dim>> &pts = g.get_node_points();
+    n_points = pts.size();
 
-      for(int i=0; i<npts; ++i)
+    if(dim==1) {
+      dealii::Vector<double> xvals(n_points);
+
+      for(int i=0; i<n_points; ++i)
         xvals[i] = pts[i](0);
 
-      c.resize(npts);
-      op.apply(c,xvals);
+
+      c.reinit(n_points);
+      op.apply(c,xvals,n_points);
+      c /= g.get_mapped_h(0);
+
+      std::cout << "Metric coefficient:" << std::endl;
+      c.print(std::cout);
     }
     else {
       AssertThrow(false,dealii::ExcNotImplemented());
     }
+  }
+
+
+  template <int dim>
+  double MetricCoefficient<dim,GeneralGeometry<dim>>
+    ::get(int i) const
+  {
+    return c[i];
+  }
+
+  template <int dim>
+  template <int n>
+  std::array<double, n> MetricCoefficient<dim,GeneralGeometry<dim>>
+    ::get_centered_array(int i) const
+  {
+    std::array<double, n> res;
+    const std::array<int, n> &offsets = internal::gen_offsets<n>::value;
+    for(int j = 0; j < n; ++j)
+      res[j] = c[i+offsets[j]];
+    return res;
+  }
+
+  template <int dim>
+  template <int n>
+  std::array<double, n> MetricCoefficient<dim,GeneralGeometry<dim>>
+    ::get_left_boundary_array() const
+  {
+    std::array<double, n> res;
+    for(int j = 0; j < n; ++j)
+      res[j] = c[j];
+    return res;
+  }
+
+  template <int dim>
+  template <int n>
+  std::array<double, n> MetricCoefficient<dim,GeneralGeometry<dim>>
+    ::get_right_boundary_array() const
+  {
+    std::array<double, n> res;
+    for(int j = 0; j < n; ++j)
+      res[j] = c[n_points-n+j];
+    return res;
   }
 
 

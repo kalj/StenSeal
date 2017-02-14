@@ -3,6 +3,8 @@
 
 namespace stenseal {
 
+  // cartesian geometry
+
   template <int dim>
   CartesianGeometry<dim>::CartesianGeometry(const std::array<unsigned int,dim> n_nodes,
                                             const dealii::Point<dim> lower_left,
@@ -14,6 +16,24 @@ namespace stenseal {
       n_nodes_total *=n_nodes[d];
       h[d] = (upper_right[d]-lower_left[d])/(n_nodes[d]-1);
     }
+  }
+
+  template <int dim>
+  unsigned CartesianGeometry<dim>::get_n_nodes(int d) const
+  {
+    return n_nodes[d];
+  }
+
+  template <int dim>
+  unsigned CartesianGeometry<dim>::get_n_nodes_total() const
+  {
+    return n_nodes_total;
+  }
+
+  template <int dim>
+  double CartesianGeometry<dim>::get_mapped_h(int d) const
+  {
+    return h[d];
   }
 
   template <int dim>
@@ -64,6 +84,7 @@ namespace stenseal {
     }
   }
 
+  // general geometry
 
   template <int dim>
   GeneralGeometry<dim>::GeneralGeometry(const std::array<unsigned int,dim> n_nodes,
@@ -73,7 +94,32 @@ namespace stenseal {
     n_nodes_total=1;
     for(int d = 0; d < dim; ++d) {
       n_nodes_total *=n_nodes[d];
+      h_mapped[d] = 1.0/(n_nodes[0]-1);
     }
+  }
+
+  template <int dim>
+  unsigned GeneralGeometry<dim>::get_n_nodes(int d) const
+  {
+    return n_nodes[d];
+  }
+
+  template <int dim>
+  unsigned GeneralGeometry<dim>::get_n_nodes_total() const
+  {
+    return n_nodes_total;
+  }
+
+  template <int dim>
+  double GeneralGeometry<dim>::get_mapped_h(int d) const
+  {
+    return h_mapped[d];
+  }
+
+  template <int dim>
+  const std::vector<dealii::Point<dim>>& GeneralGeometry<dim>::get_node_points() const
+  {
+    return nodes;
   }
 
   template <int dim>

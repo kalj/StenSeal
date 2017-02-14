@@ -96,7 +96,7 @@ namespace stenseal
       //-------------------------------------------------------------------------
       Dm.apply_dp(dst,tmp,n);
 
-      const double h2 = geometry.get_h(0)*geometry.get_h(0);
+      const double h2 = geometry.get_mapped_h(0)*geometry.get_mapped_h(0);
       dst /= h2;
 
     }

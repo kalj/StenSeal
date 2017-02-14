@@ -67,7 +67,7 @@ namespace stenseal
       D2.apply(dst,src,coeff,n);
 
       // divide by h^2
-      const double h2 = geometry.get_h(0)*geometry.get_h(0);
+      const double h2 = geometry.get_mapped_h(0)*geometry.get_mapped_h(0);
       dst /= h2;
     }
     else {
