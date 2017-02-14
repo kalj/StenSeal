@@ -88,7 +88,7 @@ namespace stenseal
       // stupid inefficient way of multiplying with c and 1/h^2
       // FIXME: merge with above.
       for(int i = 0; i<n; ++i) {
-        tmp[i] *= coeff.get(i);
+        tmp[i] /= coeff.get(i);
       }
 
       //-------------------------------------------------------------------------
@@ -97,7 +97,10 @@ namespace stenseal
       Dm.apply_dp(dst,tmp,n);
 
       const double h2 = geometry.get_mapped_h(0)*geometry.get_mapped_h(0);
-      dst /= h2;
+
+      for(int i = 0; i<n; ++i) {
+        dst[i] /= coeff.get(i)*h2;
+      }
 
     }
     else {
