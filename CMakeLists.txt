@@ -1,3 +1,4 @@
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
 
 PROJECT(stenseal)
@@ -88,3 +89,8 @@ STENSEAL_ADD_TEST(test_1d_upwind_laplace)
 ADD_EXECUTABLE(test_1d_compact_laplace tests/test_1d_compact_laplace)
 TARGET_LINK_LIBRARIES(test_1d_compact_laplace ${LIBNAME})
 STENSEAL_ADD_TEST(test_1d_compact_laplace)
+
+# test for coefficient matrix upwind laplance
+ADD_EXECUTABLE(test_1d_upwind_laplace_matrix tests/test_1d_upwind_laplace_matrix.cc)
+TARGET_LINK_LIBRARIES(test_1d_upwind_laplace_matrix ${LIBNAME})
+STENSEAL_ADD_TEST(test_1d_upwind_laplace_matrix)
