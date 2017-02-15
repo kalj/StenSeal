@@ -163,8 +163,14 @@ for(int i = N - height_l; i < N; i++ ){
  }
 }
 
+dealii::SparsityPattern sp_Laplace(N,N,row_lengths);
+sp_Laplace.compress();
+dealii::SparseMatrix<double> matrix_Laplace(sp_Laplace);
 
-matrixDp.print(std::cout);
+
+matrixDm.dealii::SparseMatrix<double>::mmult(matrix_Laplace,matrixDp);
+
+matrix_Laplace.print(std::cout);
 
 return 0;
 
