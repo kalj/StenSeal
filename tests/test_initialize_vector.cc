@@ -4,8 +4,8 @@
 #include <deal.II/base/function.h>
 
 #include "stenseal/geometry.h"
-#include "stenseal/operator.h"
-#include "stenseal/metric_coefficient.h"
+
+#include "stenseal/utils.h"
 
 #include <fstream>
 
