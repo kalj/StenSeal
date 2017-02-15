@@ -73,6 +73,8 @@ namespace stenseal
 
     if(dim==1) {
 
+      const auto &inv_jac = coeff.inverse_jacobian();
+
       const unsigned int n = geometry.get_n_nodes(0);
 
       // for now, use full temporary array
@@ -88,7 +90,7 @@ namespace stenseal
       // stupid inefficient way of multiplying with c and 1/h^2
       // FIXME: merge with above.
       for(int i = 0; i<n; ++i) {
-        tmp[i] /= coeff.get(i);
+        tmp[i] *= inv_jac.get(i);
       }
 
       //-------------------------------------------------------------------------
@@ -99,7 +101,7 @@ namespace stenseal
       const double h2 = geometry.get_mapped_h(0)*geometry.get_mapped_h(0);
 
       for(int i = 0; i<n; ++i) {
-        dst[i] /= coeff.get(i)*h2;
+        dst[i] *= inv_jac.get(i)/h2;
       }
 
     }

@@ -7,24 +7,30 @@
 
 #include <array>
 
+#include "stenseal/utils.h"
 #include "stenseal/geometry.h"
 
 namespace stenseal
 {
-  namespace internal
-  {
-    template <std::size_t n, typename T>
-    constexpr std::array<T,n> repeat_value(const T val);
-  }
+  // metric coefficients
 
+  // forward declaration
   template <int dim, typename Geometry>
   struct MetricCoefficient;
 
-  template <int dim>
-  struct MetricCoefficient<dim,CartesianGeometry<dim>>
+
+  //---------------------------------------------------------------------------
+  // coefficient classes
+  //---------------------------------------------------------------------------
+
+  /**
+   * A coefficient equal to 1.
+   */
+
+  class OneCoefficient
   {
-    template <typename dummy>
-      constexpr MetricCoefficient(const CartesianGeometry<dim>&, const dummy&);
+  public:
+    constexpr OneCoefficient();
 
     constexpr double get(int) const;
 
@@ -38,17 +44,19 @@ namespace stenseal
       constexpr std::array<double, n> get_right_boundary_array() const;
   };
 
+  /**
+   * A general coefficient
+   */
 
-  template <int dim>
-  struct MetricCoefficient<dim,GeneralGeometry<dim>>
+  class VectorCoefficient
   {
   private:
-    dealii::Vector<double> c;
-    unsigned int n_points;
+    dealii::Vector<double> vec;
 
   public:
-    template <typename DmOp>
-    MetricCoefficient(const GeneralGeometry<dim> &g, const DmOp &op);
+    VectorCoefficient();
+
+    void init(const dealii::Vector<double> &v);
 
     double get(int i) const;
 
@@ -60,6 +68,44 @@ namespace stenseal
 
     template <int n>
       std::array<double, n> get_right_boundary_array() const;
+  };
+
+
+  /**
+   * MetricCoefficient for cartesian geometry
+   */
+
+  template <int dim>
+  struct MetricCoefficient<dim,CartesianGeometry<dim>>
+  {
+  private:
+    OneCoefficient coeff;
+
+  public:
+    template <typename dummy>
+      constexpr MetricCoefficient(const CartesianGeometry<dim>&, const dummy&);
+
+    constexpr const OneCoefficient& inverse_jacobian() const;
+
+  };
+
+
+  /**
+   * MetricCoefficient for general geometry
+   */
+
+  template <int dim>
+  struct MetricCoefficient<dim,GeneralGeometry<dim>>
+  {
+  private:
+    VectorCoefficient coeff;
+    unsigned int n_points;
+
+  public:
+    template <typename DmOp>
+    MetricCoefficient(const GeneralGeometry<dim> &g, const DmOp &op);
+
+    const VectorCoefficient& inverse_jacobian() const;
 
   };
 
@@ -67,6 +113,80 @@ namespace stenseal
   //---------------------------------------------------------------------------
   // implementations
   //---------------------------------------------------------------------------
+
+  // unit coefficient
+  constexpr OneCoefficient::OneCoefficient()
+  {}
+
+  constexpr double OneCoefficient::get(int) const
+  {
+    return 1.0;
+  }
+
+  template <int n>
+  constexpr std::array<double, n> OneCoefficient::get_centered_array(int) const
+  {
+    return internal::repeat_value<n>(1.0);
+  }
+
+  template <int n>
+  constexpr std::array<double, n> OneCoefficient::get_left_boundary_array() const
+  {
+    return internal::repeat_value<n>(1.0);
+  }
+
+  template <int n>
+  constexpr std::array<double, n> OneCoefficient::get_right_boundary_array() const
+  {
+    return internal::repeat_value<n>(1.0);
+  }
+
+
+  // general coefficient
+  VectorCoefficient::VectorCoefficient()
+  {}
+
+  void VectorCoefficient::init(const dealii::Vector<double> &v)
+  {
+    vec = v;
+  }
+
+  double VectorCoefficient::get(int i) const
+  {
+    return vec[i];
+  }
+
+  template <int n>
+  std::array<double, n> VectorCoefficient::get_centered_array(int i) const
+  {
+    std::array<double, n> res;
+    const std::array<int, n> &offsets = internal::gen_offsets<n>::value;
+    for(int j = 0; j < n; ++j)
+      res[j] = vec[i+offsets[j]];
+    return res;
+  }
+
+  template <int n>
+  std::array<double, n> VectorCoefficient::get_left_boundary_array() const
+  {
+    std::array<double, n> res;
+    for(int j = 0; j < n; ++j)
+      res[j] = vec[j];
+    return res;
+  }
+
+  template <int n>
+  std::array<double, n> VectorCoefficient::get_right_boundary_array() const
+  {
+    const unsigned int n_points = vec.size();
+
+    std::array<double, n> res;
+    for(int j = 0; j < n; ++j)
+      res[j] = vec[n_points-n+j];
+    return res;
+  }
+
+
 
   // for cartesian geometry
   template <int dim>
@@ -77,33 +197,9 @@ namespace stenseal
   {}
 
   template <int dim>
-  constexpr double MetricCoefficient<dim,CartesianGeometry<dim>>::get(int) const
+  constexpr const OneCoefficient& MetricCoefficient<dim,CartesianGeometry<dim>>::inverse_jacobian() const
   {
-    return 1.0;
-  }
-
-  template <int dim>
-  template <int n>
-  constexpr std::array<double, n> MetricCoefficient<dim,CartesianGeometry<dim>>
-    ::get_centered_array(int) const
-  {
-    return internal::repeat_value<n>(1.0);
-  }
-
-  template <int dim>
-  template <int n>
-  constexpr std::array<double, n> MetricCoefficient<dim,CartesianGeometry<dim>>
-    ::get_left_boundary_array() const
-  {
-    return internal::repeat_value<n>(1.0);
-  }
-
-  template <int dim>
-  template <int n>
-  constexpr std::array<double, n> MetricCoefficient<dim,CartesianGeometry<dim>>
-    ::get_right_boundary_array() const
-  {
-    return internal::repeat_value<n>(1.0);
+    return coeff;
   }
 
 
@@ -121,73 +217,25 @@ namespace stenseal
       for(int i=0; i<n_points; ++i)
         xvals[i] = pts[i](0);
 
-
-      c.reinit(n_points);
+      dealii::Vector<double> c(n_points);
       op.apply(c,xvals,n_points);
-      c /= g.get_mapped_h(0);
 
+      // divide by step size, and invert
+      for(int i=0; i<n_points; ++i) {
+        c[i] = g.get_mapped_h(0)/c[i];
+      }
+
+      coeff.init(c);
     }
     else {
       AssertThrow(false,dealii::ExcNotImplemented());
     }
   }
 
-
   template <int dim>
-  double MetricCoefficient<dim,GeneralGeometry<dim>>
-    ::get(int i) const
+  const VectorCoefficient& MetricCoefficient<dim,GeneralGeometry<dim>>::inverse_jacobian() const
   {
-    return c[i];
-  }
-
-  template <int dim>
-  template <int n>
-  std::array<double, n> MetricCoefficient<dim,GeneralGeometry<dim>>
-    ::get_centered_array(int i) const
-  {
-    std::array<double, n> res;
-    const std::array<int, n> &offsets = internal::gen_offsets<n>::value;
-    for(int j = 0; j < n; ++j)
-      res[j] = c[i+offsets[j]];
-    return res;
-  }
-
-  template <int dim>
-  template <int n>
-  std::array<double, n> MetricCoefficient<dim,GeneralGeometry<dim>>
-    ::get_left_boundary_array() const
-  {
-    std::array<double, n> res;
-    for(int j = 0; j < n; ++j)
-      res[j] = c[j];
-    return res;
-  }
-
-  template <int dim>
-  template <int n>
-  std::array<double, n> MetricCoefficient<dim,GeneralGeometry<dim>>
-    ::get_right_boundary_array() const
-  {
-    std::array<double, n> res;
-    for(int j = 0; j < n; ++j)
-      res[j] = c[n_points-n+j];
-    return res;
-  }
-
-
-  namespace internal
-  {
-    template <std::size_t n, typename T, std::size_t... I>
-    constexpr std::array<T,n> repeat_value_impl(const T val, const std::index_sequence<I...>)
-    {
-      return { (I,val)...};
-    }
-
-    template <std::size_t n, typename T>
-    constexpr std::array<T,n> repeat_value(const T val)
-    {
-      return repeat_value_impl<n>(val,std::make_index_sequence<n>());
-    }
+    return coeff;
   }
 
 }
