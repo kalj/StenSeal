@@ -28,7 +28,7 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
     dealii::Vector<double> xpos(n_nodes_tot);
     g.initialize_vector(xpos,[] (const dealii::Point<dim> &p)
                         { const double x= p(0);
-                          return x + 0.8*x*(2*x-1)*(1-x);
+                          return (exp(x)-1)/(exp(1)-1);
                         });
 
     for(int i = 0; i < n_nodes[0]; ++i) {
