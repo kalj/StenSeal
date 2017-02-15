@@ -2,8 +2,8 @@
  *
  */
 
-#ifndef _METRIC_COEFFICIENT_H
-#define _METRIC_COEFFICIENT_H
+#ifndef _METRIC_H
+#define _METRIC_H
 
 #include <array>
 
@@ -12,11 +12,11 @@
 
 namespace stenseal
 {
-  // metric coefficients
+  // metrics
 
   // forward declaration
   template <int dim, typename Geometry>
-  struct MetricCoefficient;
+  struct Metric;
 
 
   //---------------------------------------------------------------------------
@@ -72,18 +72,18 @@ namespace stenseal
 
 
   /**
-   * MetricCoefficient for cartesian geometry
+   * Metric for cartesian geometry
    */
 
   template <int dim>
-  struct MetricCoefficient<dim,CartesianGeometry<dim>>
+  struct Metric<dim,CartesianGeometry<dim>>
   {
   private:
     OneCoefficient coeff;
 
   public:
     template <typename dummy>
-      constexpr MetricCoefficient(const CartesianGeometry<dim>&, const dummy&);
+      constexpr Metric(const CartesianGeometry<dim>&, const dummy&);
 
     constexpr const OneCoefficient& inverse_jacobian() const;
 
@@ -91,11 +91,11 @@ namespace stenseal
 
 
   /**
-   * MetricCoefficient for general geometry
+   * Metric for general geometry
    */
 
   template <int dim>
-  struct MetricCoefficient<dim,GeneralGeometry<dim>>
+  struct Metric<dim,GeneralGeometry<dim>>
   {
   private:
     VectorCoefficient coeff;
@@ -103,7 +103,7 @@ namespace stenseal
 
   public:
     template <typename DmOp>
-    MetricCoefficient(const GeneralGeometry<dim> &g, const DmOp &op);
+    Metric(const GeneralGeometry<dim> &g, const DmOp &op);
 
     const VectorCoefficient& inverse_jacobian() const;
 
@@ -191,13 +191,13 @@ namespace stenseal
   // for cartesian geometry
   template <int dim>
   template <typename dummy>
-  constexpr MetricCoefficient<dim,CartesianGeometry<dim>>
-    ::MetricCoefficient(const CartesianGeometry<dim>&,
+  constexpr Metric<dim,CartesianGeometry<dim>>
+    ::Metric(const CartesianGeometry<dim>&,
                         const dummy&)
   {}
 
   template <int dim>
-  constexpr const OneCoefficient& MetricCoefficient<dim,CartesianGeometry<dim>>::inverse_jacobian() const
+  constexpr const OneCoefficient& Metric<dim,CartesianGeometry<dim>>::inverse_jacobian() const
   {
     return coeff;
   }
@@ -206,7 +206,7 @@ namespace stenseal
   // for general geometry
   template <int dim>
   template <typename DmOp>
-  MetricCoefficient<dim,GeneralGeometry<dim>>::MetricCoefficient(const GeneralGeometry<dim> &g, const DmOp &op)
+  Metric<dim,GeneralGeometry<dim>>::Metric(const GeneralGeometry<dim> &g, const DmOp &op)
   {
     const std::vector<dealii::Point<dim>> &pts = g.get_node_points();
     n_points = pts.size();
@@ -233,11 +233,11 @@ namespace stenseal
   }
 
   template <int dim>
-  const VectorCoefficient& MetricCoefficient<dim,GeneralGeometry<dim>>::inverse_jacobian() const
+  const VectorCoefficient& Metric<dim,GeneralGeometry<dim>>::inverse_jacobian() const
   {
     return coeff;
   }
 
 }
 
-#endif /* _METRIC_COEFFICIENT_H */
+#endif /* _METRIC_H */

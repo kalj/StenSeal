@@ -10,8 +10,7 @@
 #include <deal.II/lac/sparsity_pattern.h>
 #include <deal.II/lac/sparse_matrix.h>
 
-#include "stenseal/geometry.h"
-#include "stenseal/metric_coefficient.h"
+#include "stenseal/metric.h"
 
 namespace stenseal
 {
@@ -27,7 +26,7 @@ namespace stenseal
   private:
     const DmT Dm;
     const Geometry geometry;
-    const MetricCoefficient<dim,Geometry> coeff;
+    const Metric<dim,Geometry> metric;
 
   public:
     /**
@@ -55,7 +54,7 @@ namespace stenseal
   template <int dim, typename DmT, typename Geometry>
   UpwindLaplace<dim,DmT,Geometry>
   ::UpwindLaplace(const DmT dm, const Geometry &g)
-    : Dm(dm), geometry(g), coeff(g,dm)
+    : Dm(dm), geometry(g), metric(g,dm)
   {}
 
 
@@ -73,7 +72,7 @@ namespace stenseal
 
     if(dim==1) {
 
-      const auto &inv_jac = coeff.inverse_jacobian();
+      const auto &inv_jac = metric.inverse_jacobian();
 
       const unsigned int n = geometry.get_n_nodes(0);
 
