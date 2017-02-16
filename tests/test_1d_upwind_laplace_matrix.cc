@@ -7,61 +7,129 @@
 #include "stenseal/operator_lib.h"
 #include <deal.II/lac/sparsity_pattern.h>
 #include <deal.II/lac/sparse_matrix.h>
+#include <cmath>
 
 /**
  * Test second order upwind laplace
  */
 
+double mref_2nd_order[] = {
+  2.8000,   -6.0000,  3.6000,  -0.4000,        0,        0,        0,        0,        0,        0,
+  2.8000,   -6.0000,  3.6000,  -0.4000,        0,        0,        0,        0,        0,        0,
+  -1.1000,    4.5000,  -6.4500,  3.8000,  -0.7500,        0,        0,        0,        0,        0,
+  -0.1000,  -0.5000,   3.8000,  -6.4500,   4.0000,  -0.7500,        0,        0,        0,        0,
+  0,        0,  -0.7500,   4.0000,  -6.5000,   4.0000,  -0.7500,        0,        0,        0,
+  0,        0,        0,  -0.7500,   4.0000,  -6.5000,   4.0000,  -0.7500,        0,        0,
+  0,        0,        0,        0,  -0.7500,   4.0000,  -6.5000,   4.0000,  -0.7500,        0,
+  0,        0,        0,        0 ,       0,  -0.7500,   4.0000,  -6.5000,   4.0000,  -0.7500,
+  0,        0,        0,        0,        0,        0,  -0.6000 ,  3.2000 , -4.6000,   2.0000,
+  0,        0,        0,        0,        0 ,       0,        0,  -3.0000,   6.0000,  -3.0000};
+
+
+  double mref_3rd_order[] = {
+   1.075473506632927, -2.511885591595736,  1.835998006287861, -0.438233264320221,  0.038647342995169,                  0,                  0,                  0,                  0,                  0,
+   0.811655821748989, -1.380631962930099,  0.257973479246771,  0.379325643300799, -0.068322981366460,                  0,                  0,                  0,                  0,                  0,
+   0.254665886518439,  0.314054670387374, -1.243398745761695,  0.467998919794761,  0.264650283553875, -0.057971014492754,                  0,                  0,                  0,                  0,
+   -0.164337474120083,  0.442546583850932,  0.448498964803313, -1.428398895790200,  0.507246376811594,  0.250000000000000, -0.055555555555556,                  0,                  0,                  0,
+   0.014492753623188, -0.079710144927536,  0.253623188405797,  0.507246376811594, -1.390096618357488,  0.500000000000000,  0.250000000000000, -0.055555555555556,                  0,                  0,
+   0,                  0, -0.055555555555556,  0.250000000000000,  0.500000000000000, -1.388888888888889,  0.500000000000000, 0.250000000000000, -0.055555555555556,                   0,
+   0,                  0,                  0, -0.055555555555556,  0.250000000000000,  0.500000000000000, -1.393719806763285,  0.507246376811594,  0.250000000000000, -0.057971014492754,
+   0,                  0,                  0,                  0, -0.057971014492754,  0.260869565217391,  0.529300567107750, -1.508409097728568,  0.675293305728088,  0.100916674168092,
+   0,                  0,                  0,                  0,                  0, -0.047619047619048,  0.214285714285714,  0.554705215419501, -1.561791383219954,  0.840419501133787,
+   0,                  0,                  0,                  0,                  0,                  0, -0.154589371980676,  0.850490759911050, -1.237213403880070,  0.541312015949697};
+
+   double mref_4th_order[] = {
+     1.336221213417364, -3.143071786321153,  2.411600780695188, -0.731187511242844,  0.111357511508477,  0.022476039032408, -0.007396247089440,                  0,                  0,                  0,
+     0.804447935880775, -1.360652110638654,  0.238604241481773,  0.398779563965364, -0.088162072611818,  0.002141425309071,  0.004841016613489,                  0,                  0,                  0,
+     0.267836979334519,  0.354996554399711, -1.677177847212427,  1.201904343321228, -0.110166180704016, -0.058673927711613,  0.021280078572598,                  0,                  0,                  0,
+     -0.210872649567740,  0.489776242991018,  0.992176068647725, -2.809296878224945,  1.720027308206487, -0.144379345689768, -0.057564974550696,  0.020134228187919,                  0,                  0,
+     0.037892486554968, -0.112039300610852, -0.094100279351347,  1.779750478630323, -3.229588496443332,  1.815279369236645, -0.162472035794183, -0.055555555555556,  0.020833333333333,                  0,
+     0.007648096615194,  0.002721394663611, -0.050117313253669, -0.149392517415107,  1.815279369236645, -3.254587948564049,  1.843959731543624, -0.215324384787472, -0.002703206562267,  0.002516778523490,
+     -0.002432322868339,  0.005945678122607,  0.017566776271339, -0.057564974550696, -0.157019954056124,  1.782081888203234, -3.104032161344934,  1.605461647766166, -0.045306699790849, -0.044699877752404,
+     0,                  0,                  0,  0.024390243902439, -0.065040650406504, -0.252087084629236,  1.944827524529746, -3.037407220285368,  1.427541994116328, -0.042224807227405,
+     0,                  0,                  0,                  0,  0.016393442622951, -0.002127113360472, -0.036889061578342,  0.959495438668352, -1.881782452274543,  0.944909745922054,
+     0,                  0,                  0,                  0,                  0,  0.007396247089440,  0.133963428792045,  0.553732231087227, -1.538939736908346,  0.843847829939636};
+
+
 
 template <typename OperatorType>
-bool test_matrix(OperatorType Dm)
-{
-  const int dim = 1;
-  const int n = 10;
-  unsigned int n_nodes[dim] = { n };
-  int n_nodes_tot = n_nodes[0];
+     bool test_matrix(OperatorType Dm, int order)
+     {
+      const int dim = 1;
+      const int n = 10;
+      bool all_conv = false;
+      unsigned int n_nodes[dim] = { n };
+      int n_nodes_tot = n_nodes[0];
 
-  typedef stenseal::CartesianGeometry<dim> Geometry;
-  Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
-                    dealii::Point<dim>(1.0));
+      typedef stenseal::CartesianGeometry<dim> Geometry;
+      Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
+        dealii::Point<dim>(1.0));
 
-  dealii::SparsityPattern sp_Laplace(n,n);
-  sp_Laplace.compress();
-  dealii::SparseMatrix<double> matrix_Laplace(sp_Laplace);
+      dealii::SparsityPattern sp_Laplace(n,n);
+      sp_Laplace.compress();
+      dealii::SparseMatrix<double> matrix_Laplace(sp_Laplace);
 
 
-  stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm,geometry);
+      stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm,geometry);
 
-  op.matrix(matrix_Laplace);
+      op.matrix(matrix_Laplace);
+      double diff=0;
 
-  bool all_conv = true;
-  matrix_Laplace.print(std::cout);
-  //Add somthg that actually tests if the matrix is right :)
-  return all_conv;
+      if(order == 2){
+        for(int i = 0; i < n; ++i){
+         for(int j = 0; j <n; ++j){
+          diff = diff + matrix_Laplace.dealii::SparseMatrix<double>::el(i,j)-mref_2nd_order[i*n+j];
+        }
+      }
+
+    }else if(order == 3){
+      for(int i = 0; i < n; ++i){
+       for(int j = 0; j <n; ++j){
+        diff = diff +  matrix_Laplace.dealii::SparseMatrix<double>::el(i,j)-mref_3rd_order[i*n+j];
+      }
+    }
+
+  }else if(order == 4){
+    for(int i = 0; i < n; ++i){
+     for(int j = 0; j <n; ++j){
+      diff = diff +  matrix_Laplace.dealii::SparseMatrix<double>::el(i,j)-mref_4th_order[i*n+j];
+    }
+  }
+}
+
+double tol = 1e-14;
+if( diff < tol && diff > -tol){
+  all_conv = true;
+  printf("OK\n");
+}else{
+  printf("NOT OK\n");
+}
+
+return all_conv;
 }
 
 int main(int argc, char *argv[])
 {
   bool all_conv = true;
 
-  printf("Second order Upwind:\n");
-  all_conv = test_matrix(stenseal::upwind_operator_2nd_order());
-  printf("\n Kalles Second order Upwind:\n");
-  all_conv = test_matrix(stenseal::upwind_operator_2nd_order_kalle()) && all_conv;
+  printf("Second order Upwind: ");
+  all_conv = test_matrix(stenseal::upwind_operator_2nd_order(),2);
+  //printf("\n Kalles Second order Upwind:\n");
+  //all_conv = test_matrix(stenseal::upwind_operator_2nd_order_kalle()) && all_conv;
 
-  printf("\n Third order Upwind:\n");
-  all_conv = test_matrix(stenseal::upwind_operator_3rd_order()) && all_conv;
+  printf("\nThird order Upwind: ");
+  all_conv = test_matrix(stenseal::upwind_operator_3rd_order(),3) && all_conv;
 
-  printf("\n Fourth order Upwind:\n");
-  all_conv = test_matrix(stenseal::upwind_operator_4th_order()) && all_conv;
+  printf("\nFourth order Upwind: ");
+  all_conv = test_matrix(stenseal::upwind_operator_4th_order(),4) && all_conv;
 
 
   if(all_conv) {
-    printf("All matrices are right\n");
+    printf("\nAll matrices are right\n");
     return 0;
   }
   else {
-    printf("One or more matrices have the wrong coefficinets\n");
+    printf("\nOne or more matrices have the wrong coefficinets\n");
     return 1;
   }
 }
