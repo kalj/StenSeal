@@ -58,12 +58,13 @@ template <typename OperatorType>
       const int dim = 1;
       const int n = 10;
       bool all_conv = false;
-      unsigned int n_nodes[dim] = { n };
+      std::array<unsigned int,dim> n_nodes{ n };
       int n_nodes_tot = n_nodes[0];
 
-      typedef stenseal::CartesianGeometry<dim> Geometry;
-      Geometry geometry(n_nodes, dealii::Point<dim>(0.0),
-        dealii::Point<dim>(1.0));
+
+      std::vector<dealii::Point<dim>> nodes(n_nodes_tot);
+      typedef stenseal::GeneralGeometry<dim> Geometry;
+      Geometry geometry(n_nodes,nodes);
 
       dealii::SparsityPattern sp_Laplace(n,n);
       sp_Laplace.compress();
