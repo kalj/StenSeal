@@ -24,6 +24,10 @@ namespace stenseal
     const StencilTensor3D<height_boundary,width_boundary,width_boundary> boundary;
 
   public:
+    const static int width_b   = width_boundary;
+    const static int height_b  = height_boundary;
+    const static int width_i   = width_interior;
+
     constexpr MetricOperator(const StencilTensor2D<width_interior,width_interior> i,
                              const StencilTensor3D<height_boundary,width_boundary,width_boundary> b);
 
