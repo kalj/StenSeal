@@ -64,9 +64,6 @@ TARGET_LINK_LIBRARIES(${LIBNAME} ${DEAL_II_LIB})
 ADD_EXECUTABLE(wave-equation examples/wave-equation.cc)
 TARGET_LINK_LIBRARIES(wave-equation ${LIBNAME})
 
-ADD_EXECUTABLE(matrix-build examples/matrix-build.cc)
-TARGET_LINK_LIBRARIES(matrix-build stenseal)
-
 # 1d upwind operator benchmarks
 ADD_EXECUTABLE(benchmarks_1d examples/benchmarks_1d.cc)
 TARGET_LINK_LIBRARIES(benchmarks_1d ${LIBNAME})
