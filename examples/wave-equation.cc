@@ -37,32 +37,6 @@ double InitialValues<dim>::value (const dealii::Point<dim> &p,
   return res;
 }
 
-template <int dim, typename Geometry>
-void initialize( dealii::Vector<double> &u, dealii::Function<dim> &f, const Geometry &g )
-{
-  if(dim==1) {
-    for(int i = 0; i < g.get_n_nodes(0); ++i) {
-      double x;
-      x = i*g.get_h(0) + g.get_lower_left(0);
-      dealii::Point<dim> p(x);
-      u[i] = f.value(p);
-    }
-  } else if(dim==2){
-    for(int i = 0; i < g.get_n_nodes(1); ++i) {
-      for(int j = 0; j < g.get_n_nodes(0); ++j) {
-        double x;
-        double y;
-        x = j*g.get_h(0) + g.get_lower_left(0);
-        y = i*g.get_h(1) + g.get_lower_left(1);
-        dealii::Point<dim> p(x,y);
-        u[g.get_n_nodes(0)*i+j] = f.value(p);
-      }
-    }
-  }
-  else  {
-    AssertThrow(false,dealii::ExcNotImplemented());
-  }
-}
 
 int main(int argc, char *argv[])
 {
@@ -82,7 +56,7 @@ int main(int argc, char *argv[])
   double ymin = 0;
   double ymax = 1.0;
 
-  unsigned int n_nodes[dim] = { 10, 10 };
+  std::array<unsigned int,dim> n_nodes{ 10, 10 };
   dealii::Point<dim> lower_left(xmin,ymin);
   dealii::Point<dim> upper_right(xmax,ymax);
 
@@ -94,7 +68,7 @@ int main(int argc, char *argv[])
   //=============================================================================
   dealii::Vector<double> u(geometry.get_n_nodes_total());
   InitialValues<dim> f;
-  initialize<dim,Geometry>(u,f,geometry);
+  geometry.initialize_vector(u,f);
 
   u.print(std::cout);
 

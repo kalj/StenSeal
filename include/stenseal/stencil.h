@@ -90,8 +90,11 @@ namespace stenseal
   // Implementations
   //=============================================================================
 
-  template <int m>
-  struct gen_offsets;
+  namespace internal
+  {
+    template <int m>
+    struct gen_offsets;
+  }
 
 
   template <int width>
@@ -101,7 +104,7 @@ namespace stenseal
 
   template <int width>
   constexpr  Stencil<width>::Stencil(const std::array<double,width> w)
-    : weights(w), offsets(gen_offsets<width>::value)
+    : weights(w), offsets(internal::gen_offsets<width>::value)
   {}
 
   template <int width>
@@ -189,30 +192,33 @@ namespace stenseal
     return prepend_aux(t,a, std::make_index_sequence<N>());
   }
 
-  // generate contiguous list of offsets centered around 0
-  template <>
-  struct gen_offsets<1>
+  namespace internal
   {
-    static constexpr std::array<int,1> value{0};
-  };
+    // generate contiguous list of offsets centered around 0
+    template <>
+    struct gen_offsets<1>
+    {
+      static constexpr std::array<int,1> value{0};
+    };
 
-  template <>
-  struct gen_offsets<2>
-  {
-    static constexpr std::array<int,2> value{0,1};
-  };
+    template <>
+    struct gen_offsets<2>
+    {
+      static constexpr std::array<int,2> value{0,1};
+    };
 
-  template <int m>
-  struct gen_offsets
-  {
-    static constexpr std::array<int,m> value = prepend((m%2==0)-m/2, append(gen_offsets<m-2>::value, m/2));
-  };
+    template <int m>
+    struct gen_offsets
+    {
+      static constexpr std::array<int,m> value = prepend((m%2==0)-m/2, append(gen_offsets<m-2>::value, m/2));
+    };
 
-  template <int m>
-  constexpr std::array<int,m> gen_offsets<m>::value;
+    template <int m>
+    constexpr std::array<int,m> gen_offsets<m>::value;
 
-  constexpr std::array<int,1> gen_offsets<1>::value;
-  constexpr std::array<int,2> gen_offsets<2>::value;
+    constexpr std::array<int,1> gen_offsets<1>::value;
+    constexpr std::array<int,2> gen_offsets<2>::value;
+  }
 
 
   //=============================================================================

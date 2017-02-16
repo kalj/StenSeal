@@ -72,6 +72,11 @@ TARGET_LINK_LIBRARIES(benchmarks_1d ${LIBNAME})
 # Tests
 #------------------------------------------------------------------------------
 
+# test vector initialization in geometry
+ADD_EXECUTABLE(test_initialize_vector tests/test_initialize_vector.cc)
+TARGET_LINK_LIBRARIES(test_initialize_vector ${LIBNAME})
+STENSEAL_ADD_TEST(test_initialize_vector)
+
 # test for upwind first derivative in 1D
 ADD_EXECUTABLE(test_1d_first_derivative tests/test_1d_first_derivative.cc)
 TARGET_LINK_LIBRARIES(test_1d_first_derivative ${LIBNAME})
@@ -86,6 +91,11 @@ STENSEAL_ADD_TEST(test_1d_upwind_laplace)
 ADD_EXECUTABLE(test_1d_compact_laplace tests/test_1d_compact_laplace)
 TARGET_LINK_LIBRARIES(test_1d_compact_laplace ${LIBNAME})
 STENSEAL_ADD_TEST(test_1d_compact_laplace)
+
+# test for upwind laplace in 1D for general geometry
+ADD_EXECUTABLE(test_1d_general_upwind_laplace tests/test_1d_general_upwind_laplace.cc)
+TARGET_LINK_LIBRARIES(test_1d_general_upwind_laplace ${LIBNAME})
+STENSEAL_ADD_TEST(test_1d_general_upwind_laplace)
 
 # test for coefficient matrix upwind laplance
 ADD_EXECUTABLE(test_1d_upwind_laplace_matrix tests/test_1d_upwind_laplace_matrix.cc)

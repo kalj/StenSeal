@@ -2,13 +2,11 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/base/numbers.h>
 
-#include "stenseal/geometry.h"
 #include "stenseal/operator.h"
+#include "stenseal/upwind_laplace.h"
 #include "stenseal/operator_lib.h"
 
-/**
- * Test first derivatives
- */
+#include <fstream>
 
 template <typename OperatorType>
 void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l2_norm_interior)
@@ -20,24 +18,59 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   double h = 1.0/(n_nodes_tot-1);
   const double PI = dealii::numbers::PI;
 
-  typedef stenseal::CartesianGeometry<dim> Geometry;
-  Geometry geometry(n_nodes);
+  // node positions
+  std::vector<dealii::Point<dim>> nodes(n_nodes_tot);
+
+  {
+    // use cartesian geometry to set up initial points
+    stenseal::CartesianGeometry<dim> g(n_nodes);
+
+    dealii::Vector<double> xpos(n_nodes_tot);
+    g.initialize_vector(xpos,[] (const dealii::Point<dim> &p)
+                        { const double x= p(0);
+                          return x + 0.8*x*(2*x-1)*(1-x);
+                        });
+
+    for(int i = 0; i < n_nodes[0]; ++i) {
+      nodes[i](0) = xpos[i];
+    }
+  }
+
+  // std::ofstream node_file("nodes.txt");
+  // for(auto p : nodes)
+  //   node_file << p << std::endl;
+
+  typedef stenseal::GeneralGeometry<dim> Geometry;
+  Geometry geometry(n_nodes,nodes);
+
+  stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm,geometry);
 
   dealii::Vector<double> u(n_nodes_tot);
 
   auto test_function =
     [=](const dealii::Point<dim> &p) { return sin(PI*p(0)); };
-  auto test_function_1st_derivative =
-    [=](const dealii::Point<dim> &p) { return PI*cos(PI*p(0)); };
+  auto test_function_2nd_derivative =
+    [=](const dealii::Point<dim> &p) { return -PI*PI*sin(PI*p(0)); };
 
   geometry.initialize_vector(u,test_function);
 
   dealii::Vector<double> v(n_nodes_tot);
-  Dm.apply(v,u,n_nodes_tot);
+
+  op.apply(v,u);
+
 
 
   dealii::Vector<double> vref(n_nodes_tot);
-  geometry.initialize_vector(vref,test_function_1st_derivative);
+  geometry.initialize_vector(vref,test_function_2nd_derivative);
+
+  // std::ofstream u_file("initial_condition.txt");
+  // u.print(u_file);
+
+  // std::ofstream v_file("2nd_derivative.txt");
+  // v.print(v_file);
+
+  // std::ofstream vref_file("ref_2nd_derivative.txt");
+  // vref.print(vref_file);
 
   // exclude points affected by boundary stencil
   const int height_r = OperatorType::height_r;
@@ -50,26 +83,24 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   double sqsum = 0;
   double a;
   for(int i = left_offset; i < n_nodes_tot-right_offset; ++i) {
-    a = 1/h*v[i] - vref[i];
+    a = v[i] - vref[i];
     sqsum += a*a;
   }
 
   l2_norm_interior = std::sqrt(h*sqsum);
 
   for(int i= 0; i < left_offset; ++i) {
-    a = 1/h*v[i] - vref[i];
+    a = v[i] - vref[i];
     sqsum += a*a;
   }
 
 
   for(int i = n_nodes_tot-right_offset; i < n_nodes_tot; ++i) {
-    a = 1/h*v[i] - vref[i];
+    a = v[i] - vref[i];
     sqsum += a*a;
   }
 
-
   l2_norm = std::sqrt(h*sqsum);
-
 }
 
 
@@ -93,8 +124,8 @@ bool test_operator(OperatorType op, float interior_p_ref, float full_p_ref)
   printf("%6d %12.4g       - ( - )   %12.4g        - ( - )\n",size,full_norms[0],interior_norms[0]);
   size *= 2;
 
-  double tol = 1e-12;
   bool all_conv = true;
+  double tol = 1e-08;
   for(int i=1; i<n_tests; i++) {
     double full_conv = full_norms[i-1] / full_norms[i];
     double full_p = std::log2(full_conv);
@@ -102,9 +133,10 @@ bool test_operator(OperatorType op, float interior_p_ref, float full_p_ref)
     double interior_p = std::log2(interior_conv);
     printf("%6d %12.4g %7.3g (%.1f)   %12.4g %8.3g (%.1f)\n",size,full_norms[i],full_conv,full_p,
            interior_norms[i],interior_conv,interior_p);
+
     size *= 2;
     all_conv = all_conv && (interior_p > interior_p_ref && full_p > full_p_ref);
-    if( interior_norms[i] < tol) break;
+    if(interior_norms[i] < tol) break;
   }
   printf("\n");
   return all_conv;
@@ -118,13 +150,14 @@ int main(int argc, char *argv[])
   all_conv = test_operator(stenseal::upwind_operator_2nd_order(),1.9,1.4) && all_conv;
 
   printf("\n Kalles Second order Upwind:\n");
-  all_conv = test_operator(stenseal::upwind_operator_2nd_order_kalle(),1.9,1.4) && all_conv;
+  all_conv = test_operator(stenseal::upwind_operator_2nd_order_kalle(),0.9,0.9) && all_conv;
 
   printf("\n Third order Upwind:\n");
-  all_conv = test_operator(stenseal::upwind_operator_3rd_order(),2.9,2.4) && all_conv;
+  all_conv = test_operator(stenseal::upwind_operator_3rd_order(),2.9,1.4) && all_conv;
 
   printf("\n Fourth order Upwind:\n");
-  all_conv = test_operator(stenseal::upwind_operator_4th_order(),3.8,2.4) && all_conv;
+  all_conv = test_operator(stenseal::upwind_operator_4th_order(),3.9,1.4) && all_conv;
+
 
   if(all_conv) {
     printf("Proper convergence order attained\n");
