@@ -2,10 +2,7 @@
 #include <deal.II/base/numbers.h>
 
 #include "stenseal/geometry.h"
-#include "stenseal/stencil.h"
-#include "stenseal/stencil_tensor.h"
-#include "stenseal/operator.h"
-#include "stenseal/metric_operator.h"
+#include "stenseal/operator_lib.h"
 #include "stenseal/compact_laplace.h"
 
 /**
@@ -46,7 +43,7 @@ void compute_l2_norm(std::pair<OperatorTypeD2,OperatorTypeD1> ops, unsigned int 
 
 
   // exclude points affected by boundary stencil
-  const int height_bdry = 2;
+  const int height_bdry = OperatorTypeD2::height_b;
   const int bdry_offset = height_bdry;
 
   // compute norms
@@ -119,36 +116,10 @@ int main(int argc, char *argv[])
   bool all_conv = true;
 
   printf("Second order Compact:\n");
+  all_conv = test_operator(stenseal::compact_operators_2nd_order(),1.9,1.4) && all_conv;
 
-  const stenseal::Symbol sym;
-
-  constexpr stenseal::Stencil<2> d1_interior((-0.5)*sym[-1] + 0.5*sym[1]);
-
-  constexpr stenseal::StencilTensor2D<1,2> d1_boundary((-1.0)*sym[0] + 1.0*sym[1]);
-  constexpr stenseal::StencilTensor2D<1,2> d1_boundary_r((-1.0)*sym[-1] + 1.0*sym[0]);
-
-
-  constexpr stenseal::Operator<2,2,1,2,1> D1 (d1_interior,
-                                              d1_boundary,
-                                              d1_boundary_r);
-
-
-  constexpr stenseal::StencilTensor2D<3,3> d2_interior((0.5)*sym[-1]  + (0.5)*sym[0] + 0.0*sym[1],
-                                                       (-0.5)*sym[-1] + (-1.0)*sym[0]+ (-0.5)*sym[1],
-                                                       0.0*sym[-1]    + (0.5)*sym[0] + (0.5)*sym[1]);
-
-
-  constexpr stenseal::StencilTensor3D<2,3,3> d2_boundary( stenseal::StencilTensor2D<3,3>((2.0)*sym[0]   + (-1.0)*sym[1]  + (0.0)*sym[2],
-                                                                                         (-3.0)*sym[-1] + (1.0)*sym[0]   + (0.0)*sym[1],
-                                                                                         (1.0)*sym[-2]  + (0.0)*sym[-1]  + (0.0)*sym[0]),
-                                                          stenseal::StencilTensor2D<3,3>((0.5)*sym[0]   + (0.5)*sym[1]   + (0.0)*sym[2],
-                                                                                         (-0.5)*sym[-1] + (-1.0)*sym[0]  + (-0.5)*sym[1],
-                                                                                         (0.0)*sym[-2]  + (0.5)*sym[-1] + (0.5)*sym[0]));
-  constexpr stenseal::MetricOperator<3,3,2> D2 (d2_interior,
-                                                d2_boundary);
-
-  all_conv = test_operator(std::make_pair(D2,D1),1.9,1.4) && all_conv;
-
+  printf("Fourth order Compact:\n");
+  all_conv = test_operator(stenseal::compact_operators_4th_order(),3.9,3.4) && all_conv;
 
   if(all_conv) {
     printf("Proper convergence order attained\n");
