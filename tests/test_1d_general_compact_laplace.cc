@@ -2,14 +2,17 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/base/numbers.h>
 
+#include "stenseal/geometry.h"
 #include "stenseal/operator.h"
-#include "stenseal/upwind_laplace.h"
+#include "stenseal/compact_laplace.h"
+#include "stenseal/metric_operator.h"
 #include "stenseal/operator_lib.h"
 
 #include <fstream>
 
-template <typename OperatorType>
-void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l2_norm_interior)
+template <typename OperatorTypeD2, typename OperatorTypeD1>
+void compute_l2_norm(std::pair<OperatorTypeD2,OperatorTypeD1> ops, unsigned int n,
+                     double &l2_norm, double &l2_norm_interior)
 {
   const int dim = 1;
 
@@ -27,9 +30,9 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
 
     dealii::Vector<double> xpos(n_nodes_tot);
     g.initialize_vector(xpos,[] (const dealii::Point<dim> &p)
-                        { const double x= p(0);
-                          return (exp(x)-1)/(exp(1)-1);
-                        });
+                               { const double x= p(0);
+                                 return (exp(x)-1)/(exp(1)-1);
+                                });
 
     for(int i = 0; i < n_nodes[0]; ++i) {
       nodes[i](0) = xpos[i];
@@ -43,7 +46,7 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   typedef stenseal::GeneralGeometry<dim> Geometry;
   Geometry geometry(n_nodes,nodes);
 
-  stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm,geometry);
+  stenseal::CompactLaplace<dim,OperatorTypeD2,OperatorTypeD1,Geometry> op(ops.first,ops.second,geometry);
 
   dealii::Vector<double> u(n_nodes_tot);
 
@@ -59,7 +62,6 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   op.apply(v,u);
 
 
-
   dealii::Vector<double> vref(n_nodes_tot);
   geometry.initialize_vector(vref,test_function_2nd_derivative);
 
@@ -73,29 +75,26 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
   // vref.print(vref_file);
 
   // exclude points affected by boundary stencil
-  const int height_r = OperatorType::height_r;
-  const int height_l = OperatorType::height_l;
-  const int width_i =  OperatorType::width_i;
-  const int left_offset = height_l +width_i-1;
-  const int right_offset = height_r + width_i - 1;
+  const int height_bdry = 2;
+  const int bdry_offset = height_bdry;
 
   // compute norms
   double sqsum = 0;
   double a;
-  for(int i = left_offset; i < n_nodes_tot-right_offset; ++i) {
+  for(int i = bdry_offset; i < n_nodes_tot-bdry_offset; ++i) {
     a = v[i] - vref[i];
     sqsum += a*a;
   }
 
   l2_norm_interior = std::sqrt(h*sqsum);
 
-  for(int i= 0; i < left_offset; ++i) {
+  for(int i= 0; i < bdry_offset; ++i) {
     a = v[i] - vref[i];
     sqsum += a*a;
   }
 
 
-  for(int i = n_nodes_tot-right_offset; i < n_nodes_tot; ++i) {
+  for(int i = n_nodes_tot-bdry_offset; i < n_nodes_tot; ++i) {
     a = v[i] - vref[i];
     sqsum += a*a;
   }
@@ -104,8 +103,8 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
 }
 
 
-template <typename OperatorType>
-bool test_operator(OperatorType op, float interior_p_ref, float full_p_ref)
+template <typename OperatorTypeD2, typename OperatorTypeD1>
+bool test_operator(std::pair<OperatorTypeD2,OperatorTypeD1> ops, float interior_p_ref, float full_p_ref)
 {
   const int n_tests = 7;
   double full_norms[n_tests];
@@ -113,7 +112,7 @@ bool test_operator(OperatorType op, float interior_p_ref, float full_p_ref)
   unsigned int size = 40;
 
   for(int i=0; i<n_tests; i++) {
-    compute_l2_norm(op,size,full_norms[i],interior_norms[i]);
+    compute_l2_norm(ops,size,full_norms[i],interior_norms[i]);
     size *= 2;
   }
 
@@ -146,17 +145,39 @@ int main(int argc, char *argv[])
 {
   bool all_conv = true;
 
-  printf("Second order Upwind:\n");
-  all_conv = test_operator(stenseal::upwind_operator_2nd_order(),1.9,1.4) && all_conv;
+  printf("Second order Compact:\n");
 
-  printf("\n Kalles Second order Upwind:\n");
-  all_conv = test_operator(stenseal::upwind_operator_2nd_order_kalle(),0.9,0.9) && all_conv;
+  const stenseal::Symbol sym;
 
-  printf("\n Third order Upwind:\n");
-  all_conv = test_operator(stenseal::upwind_operator_3rd_order(),2.9,1.4) && all_conv;
+  constexpr stenseal::Stencil<2> d1_interior((-0.5)*sym[-1] + 0.5*sym[1]);
 
-  printf("\n Fourth order Upwind:\n");
-  all_conv = test_operator(stenseal::upwind_operator_4th_order(),3.9,1.4) && all_conv;
+  constexpr stenseal::StencilTensor2D<1,2> d1_boundary((-1.0)*sym[0] + 1.0*sym[1]);
+  constexpr stenseal::StencilTensor2D<1,2> d1_boundary_r((-1.0)*sym[-1] + 1.0*sym[0]);
+
+
+  constexpr stenseal::Operator<2,2,1,2,1> D1 (d1_interior,
+                                              d1_boundary,
+                                              d1_boundary_r);
+
+
+  constexpr stenseal::StencilTensor2D<3,3> d2_interior((0.5)*sym[-1]  + (0.5)*sym[0] + 0.0*sym[1],
+                                                       (-0.5)*sym[-1] + (-1.0)*sym[0]+ (-0.5)*sym[1],
+                                                       0.0*sym[-1]    + (0.5)*sym[0] + (0.5)*sym[1]);
+
+
+  constexpr stenseal::StencilTensor3D<2,3,3> d2_boundary( stenseal::StencilTensor2D<3,3>((2.0)*sym[0]   + (-1.0)*sym[1]  + (0.0)*sym[2],
+                                                                                         (-3.0)*sym[-1] + (1.0)*sym[0]   + (0.0)*sym[1],
+                                                                                         (1.0)*sym[-2]  + (0.0)*sym[-1]  + (0.0)*sym[0]),
+                                                          stenseal::StencilTensor2D<3,3>((0.5)*sym[0]   + (0.5)*sym[1]   + (0.0)*sym[2],
+                                                                                         (-0.5)*sym[-1] + (-1.0)*sym[0]  + (-0.5)*sym[1],
+                                                                                         (0.0)*sym[-2]  + (0.5)*sym[-1] + (0.5)*sym[0]));
+
+
+  constexpr stenseal::MetricOperator<3,3,2> D2 (d2_interior,
+                                                d2_boundary);
+
+
+  all_conv = test_operator(std::make_pair(D2,D1),1.9,1.4) && all_conv;
 
 
   if(all_conv) {

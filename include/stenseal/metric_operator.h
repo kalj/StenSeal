@@ -71,10 +71,11 @@ namespace stenseal
     }
 
     for(int i = n-height_boundary; i < n; ++i) {
-      const auto b = boundary[i-n+height_boundary].apply_inner_flip(coeff.template get_right_boundary_array<width_boundary>());
+      const auto b = boundary[n-1-i].apply_inner_flip(coeff.template get_right_boundary_array<width_boundary>());
+
       // FIXME: temporary fix to apply generated stencil in a non-centered fashion
-      dst[i] = b.apply_flip(src,n-width_boundary+(width_boundary-1)/2);
-      // dst[i] = b.apply_flip(src,i);
+      dst[i] = b.apply(src,n-width_boundary+(width_boundary-1)/2);
+      // dst[i] = b.apply(src,i);
     }
 
   }

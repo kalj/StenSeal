@@ -7,7 +7,7 @@
 
 #include <deal.II/lac/vector.h>
 
-#include "stenseal/metric_coefficient.h"
+#include "stenseal/metric.h"
 
 namespace stenseal
 {
@@ -28,7 +28,7 @@ namespace stenseal
     const D2Operator D2;
     const D1Operator D1;
     const Geometry geometry;
-    const MetricCoefficient<dim,Geometry> coeff;
+    const Metric<dim,Geometry> metric;
   public:
     /**
    * Constructor. Takes the 1D compact second-derivative SBP operator `d2`, the
@@ -53,7 +53,7 @@ namespace stenseal
   template <int dim, typename D2Operator, typename D1Operator, typename Geometry>
   CompactLaplace<dim,D2Operator,D1Operator,Geometry>
   ::CompactLaplace(const D2Operator d2, const D1Operator d1, const Geometry geom)
-    : D2(d2), D1(d1), geometry(geom), coeff(geom,d1)
+    : D2(d2), D1(d1), geometry(geom), metric(geom,d1)
   {}
 
 
@@ -64,11 +64,17 @@ namespace stenseal
     if(dim == 1) {
       const unsigned int n = geometry.get_n_nodes(0);
 
-      D2.apply(dst,src,coeff,n);
+      const auto &inv_jac = metric.inverse_jacobian();
 
-      // divide by h^2
+      D2.apply(dst,src,inv_jac,n);
+
+      // divide by h^2, and multiply by inverse jacobian
       const double h2 = geometry.get_mapped_h(0)*geometry.get_mapped_h(0);
-      dst /= h2;
+
+
+      for(int i = 0; i < n; ++i) {
+        dst[i] *= inv_jac.get(i)/h2;
+      }
     }
     else {
       AssertThrow(false,dealii::ExcNotImplemented());
