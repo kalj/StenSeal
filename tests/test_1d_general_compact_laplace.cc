@@ -49,9 +49,9 @@ void compute_l2_norm(std::pair<OperatorTypeD2,OperatorTypeD1> ops, unsigned int 
   dealii::Vector<double> u(n_nodes_tot);
 
   auto test_function =
-    [=](const dealii::Point<dim> &p) { return sin(PI*p(0)); };
+    [=](const dealii::Point<dim> &p) { return sin(4*PI*p(0)); };
   auto test_function_2nd_derivative =
-    [=](const dealii::Point<dim> &p) { return -PI*PI*sin(PI*p(0)); };
+    [=](const dealii::Point<dim> &p) { return -16*PI*PI*sin(4*PI*p(0)); };
 
   geometry.initialize_vector(u,test_function);
 
