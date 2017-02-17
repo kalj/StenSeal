@@ -39,10 +39,12 @@ namespace stenseal
      * Apply this operator to the vector `src` writing the result into `dst`.
      */
     void apply(dealii::Vector<double> &dst, const dealii::Vector<double> &src) const;
+
     /**
      *Retuns operator in matrix-form
      */
-    void matrix(dealii::SparseMatrix<double> &matrix_Laplace);
+    void matrix(dealii::SparseMatrix<double> &matrix_Laplace) const;
+
   };
 
 
@@ -112,7 +114,7 @@ namespace stenseal
 
   template <int dim, typename DmT, typename Geometry>
   void UpwindLaplace<dim,DmT,Geometry>
-  ::matrix(dealii::SparseMatrix<double> &matrix_Laplace)
+  ::matrix(dealii::SparseMatrix<double> &matrix_Laplace) const
   {
     const unsigned int N = geometry.get_n_nodes(0);
 
