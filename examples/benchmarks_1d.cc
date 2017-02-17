@@ -1,4 +1,4 @@
-
+#include <deal.II/base/multithread_info.h>
 #include <deal.II/lac/sparse_matrix.h>
 #include <deal.II/lac/vector.h>
 #include <deal.II/base/numbers.h>
@@ -206,6 +206,8 @@ void all_benchmarks()
 
 int main(int argc, char *argv[])
 {
+  dealii::MultithreadInfo::set_thread_limit(1);
+
   const int dim = 1;
   printf("-------------------------------------------------------- \n");
   printf("------------------ Cartesian Geometry ------------------ \n");
