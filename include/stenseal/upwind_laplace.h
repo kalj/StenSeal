@@ -43,7 +43,7 @@ namespace stenseal
     /**
      *Retuns operator in matrix-form
      */
-    void matrix(dealii::SparseMatrix<double> &matrix_Laplace) const;
+    void matrix(dealii::SparseMatrix<double> &matrix_Laplace,dealii::SparsityPattern &sp_Laplace) const;
 
     unsigned int max_rowlength() const;
 
@@ -143,7 +143,7 @@ namespace stenseal
 
   template <int dim, typename DmT, typename Geometry>
   void UpwindLaplace<dim,DmT,Geometry>
-  ::matrix(dealii::SparseMatrix<double> &matrix_Laplace) const
+  ::matrix(dealii::SparseMatrix<double> &matrix_Laplace,  dealii::SparsityPattern &sp_Laplace) const
   {
     const unsigned int N = geometry.get_n_nodes(0);
 
@@ -291,9 +291,10 @@ namespace stenseal
       }
     }
 
-    //dealii::SparsityPattern sp_Laplace(N,N,row_lengths);
-    //sp_Laplace.compress();
-    //dealii::SparseMatrix<double> matrix_Laplace(sp_Laplace);
+
+    sp_Laplace.reinit(N,N,max_rowlength());
+    sp_Laplace.compress();
+    matrix_Laplace.reinit(sp_Laplace);
 
 
     matrixDm.dealii::SparseMatrix<double>::mmult(matrix_Laplace,matrixDp);

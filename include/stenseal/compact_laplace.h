@@ -6,6 +6,7 @@
 #define _COMPACT_LAPLACE_H
 
 #include <deal.II/lac/vector.h>
+#include <deal.II/lac/sparsity_pattern.h>
 #include <deal.II/lac/sparse_matrix.h>
 
 #include "stenseal/metric.h"
@@ -43,14 +44,12 @@ namespace stenseal
      */
     void apply(dealii::Vector<double> &dst, const dealii::Vector<double> &src) const;
 
+
     /**
-     *Retuns operator in matrix-form
+     * Retuns operator in matrix-form
      */
-    void matrix(dealii::SparseMatrix<double> &matrix_Laplace) const;
-
-    unsigned int max_rowlength() const { return 1;}
+    void matrix(dealii::SparseMatrix<double> &matrix_Laplace, dealii::SparsityPattern &sp_D2 ) const;
   };
-
 
 
   //---------------------------------------------------------------------------
@@ -91,10 +90,82 @@ namespace stenseal
 
   template <int dim, typename D2Operator, typename D1Operator, typename Geometry>
   void CompactLaplace<dim,D2Operator,D1Operator,Geometry>
-  ::matrix(dealii::SparseMatrix<double> &matrix_Laplace) const
+  ::matrix(dealii::SparseMatrix<double> &matrix_Laplace, dealii::SparsityPattern &sp_D2) const
   {
-    AssertThrow(false,dealii::ExcNotImplemented());
+   if(dim == 1) {
+    const unsigned int N = geometry.get_n_nodes(0);
+    std::vector<unsigned int> row_lengths(N);
+
+    const auto &inv_jac = metric.inverse_jacobian();
+    const int width_i = D2Operator::width_i;
+    const int width_b = D2Operator::width_b;
+    const int height_b = D2Operator::height_b;
+    const auto boundary = D2.get_boundary();
+    const auto interior = D2.get_interior();
+
+    for(int i = 0; i <height_b; ++i) {
+      row_lengths[i] = width_b;
+    }
+
+    for(int i = height_b; i < N - height_b; i++){
+      row_lengths[i] = width_i;
+    }
+
+    for(int i = N - height_b; i < N; i++ ){
+      row_lengths[i] = width_b;
+    }
+
+    sp_D2.reinit(N,N,row_lengths);
+
+    for(int i = 0; i <height_b; ++i) {
+      for(int j = 0; j< width_b; j++){
+        sp_D2.add(i,j);
+      }
+    }
+
+    int offset = (width_i-1)/2;
+    for(int i = height_b; i < N - height_b; i++ ){
+      for(int j = 0; j < width_i; j++){
+        sp_D2.add(i,j + i - offset);
+      }
+    }
+
+
+    for(int i = N - height_b; i < N; i++ ){
+      for(int j = 0; j< width_b; j++){
+        sp_D2.add(i, N- width_b+j);
+      }
+    }
+
+    sp_D2.compress();
+    matrix_Laplace.reinit(sp_D2);
+
+     // divide by h^2, and multiply by inverse jacobian
+     // const double h2 = geometry.get_mapped_h(0)*geometry.get_mapped_h(0);
+
+    for(int i = 0; i <height_b; ++i) {
+      for(int j = 0; j< width_b; j++){
+       matrix_Laplace.set(i,j, boundary[i][j].apply(metric.inverse_jacobian().template get_left_boundary_array<width_b>()));
+     }
+   }
+
+   for(int i = height_b; i < N - height_b; i++ ){
+    for(int j = 0; j < width_i; j++){
+      matrix_Laplace.add(i,j + i - offset, interior[j].apply(metric.inverse_jacobian().template get_centered_array<width_i>(i)));
+    }
   }
+
+  for(int i = N - height_b; i < N; i++ ){
+    for(int j = 0; j< width_b; j++){
+     matrix_Laplace.set(i, N- width_b+j, -boundary[i-N+height_b][j].apply_flip(metric.inverse_jacobian().template get_right_boundary_array<width_b>()));
+   }
+ }
+
+}
+else {
+  AssertThrow(false,dealii::ExcNotImplemented());
+}
+}
 }
 
 #endif /* _COMPACT_LAPLACE_H */
