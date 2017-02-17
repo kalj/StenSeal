@@ -106,7 +106,7 @@ namespace stenseal
 
 
 
-  constexpr std::pair<MetricOperator<5,5,8>,Operator<5,6,4,6,4>> compact_operators_4th_order()
+  constexpr std::pair<MetricOperator<5,8,6>,Operator<5,6,4,6,4>> compact_operators_4th_order()
   {
     const stenseal::Symbol sym;
 
@@ -198,13 +198,13 @@ namespace stenseal
                                                            bdry_row6);
 
 
-    constexpr stenseal::MetricOperator<5,5,8> D2 (d2_interior,
+    constexpr stenseal::MetricOperator<5,8,6> D2 (d2_interior,
                                                   d2_boundary);
     return std::make_pair(D2,D1);
   }
 
 
-  constexpr std::pair<MetricOperator<7,7,12>,Operator<7,9,6,9,6>> compact_operators_6th_order()
+  constexpr std::pair<MetricOperator<7,12,9>,Operator<7,9,6,9,6>> compact_operators_6th_order()
   {
     const stenseal::Symbol sym;
 
@@ -369,7 +369,7 @@ namespace stenseal
 
 
 
-    constexpr stenseal::MetricOperator<7,7,12> D2 (d2_interior,
+    constexpr stenseal::MetricOperator<7,12,9> D2 (d2_interior,
                                                   d2_boundary);
     return std::make_pair(D2,D1);
   }
