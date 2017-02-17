@@ -106,3 +106,8 @@ STENSEAL_ADD_TEST(test_1d_general_compact_laplace)
 ADD_EXECUTABLE(test_1d_upwind_laplace_matrix tests/test_1d_upwind_laplace_matrix.cc)
 TARGET_LINK_LIBRARIES(test_1d_upwind_laplace_matrix ${LIBNAME})
 STENSEAL_ADD_TEST(test_1d_upwind_laplace_matrix)
+
+# test for compact laplace in 1D for general geometry
+ADD_EXECUTABLE(test_1d_compact_laplace_matrix tests/test_1d_compact_laplace_matrix.cc)
+TARGET_LINK_LIBRARIES(test_1d_compact_laplace_matrix ${LIBNAME})
+STENSEAL_ADD_TEST(test_1d__compact_laplace_matrix)

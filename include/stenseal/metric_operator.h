@@ -36,6 +36,10 @@ namespace stenseal
                const dealii::Vector<double> &src,
                const MetricCoefficient &coeff,
                const unsigned int n) const;
+
+    const StencilTensor3D<height_boundary,width_boundary,width_boundary>& get_boundary() const;
+
+    const StencilTensor2D<width_interior,width_interior>& get_interior() const;
   };
 
   //---------------------------------------------------------------------------
@@ -82,6 +86,24 @@ namespace stenseal
       // dst[i] = b.apply(src,i);
     }
 
+  }
+
+  template <int width_interior,
+            int width_boundary,
+            int height_boundary>
+  const StencilTensor3D<height_boundary,width_boundary,width_boundary>& MetricOperator<width_interior,width_boundary,height_boundary>
+  ::get_boundary() const
+  {
+    return boundary;
+  }
+
+  template <int width_interior,
+            int width_boundary,
+            int height_boundary>
+  const StencilTensor2D<width_interior,width_interior>& MetricOperator<width_interior,width_boundary,height_boundary>
+  ::get_interior() const
+  {
+    return interior;
   }
 
 }

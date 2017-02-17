@@ -42,7 +42,7 @@ namespace stenseal
     /**
      *Retuns operator in matrix-form
      */
-    void matrix(dealii::SparseMatrix<double> &matrix_Laplace);
+    void matrix(dealii::SparseMatrix<double> &matrix_Laplace) const;
   };
 
 
@@ -112,7 +112,7 @@ namespace stenseal
 
   template <int dim, typename DmT, typename Geometry>
   void UpwindLaplace<dim,DmT,Geometry>
-  ::matrix(dealii::SparseMatrix<double> &matrix_Laplace)
+  ::matrix(dealii::SparseMatrix<double> &matrix_Laplace) const
   {
     const unsigned int N = geometry.get_n_nodes(0);
 
@@ -163,8 +163,6 @@ namespace stenseal
         sp_Dm.add(i,i + offsetr[j]);
       }
     }
-
-
     sp_Dm.compress();
 
     dealii::SparseMatrix<double> matrixDm(sp_Dm);
