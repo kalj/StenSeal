@@ -6,6 +6,7 @@
 #define _COMPACT_LAPLACE_H
 
 #include <deal.II/lac/vector.h>
+#include <deal.II/lac/sparse_matrix.h>
 
 #include "stenseal/metric.h"
 
@@ -31,16 +32,23 @@ namespace stenseal
     const Metric<dim,Geometry> metric;
   public:
     /**
-   * Constructor. Takes the 1D compact second-derivative SBP operator `d2`, the
-   * 1D compact first-derivative SBP operator d1, and the geometry descriptor
-   * `g` of this grid block.
-   */
+     * Constructor. Takes the 1D compact second-derivative SBP operator `d2`, the
+     * 1D compact first-derivative SBP operator d1, and the geometry descriptor
+     * `g` of this grid block.
+     */
     CompactLaplace(const D2Operator d2, const D1Operator d1, const Geometry geom);
 
-  /**
-   * Apply this operator to the vector `src` writing the result into `dst`.
-   */
+    /**
+     * Apply this operator to the vector `src` writing the result into `dst`.
+     */
     void apply(dealii::Vector<double> &dst, const dealii::Vector<double> &src) const;
+
+    /**
+     *Retuns operator in matrix-form
+     */
+    void matrix(dealii::SparseMatrix<double> &matrix_Laplace) const;
+
+    unsigned int max_rowlength() const { return 1;}
   };
 
 
@@ -79,6 +87,13 @@ namespace stenseal
     else {
       AssertThrow(false,dealii::ExcNotImplemented());
     }
+  }
+
+  template <int dim, typename D2Operator, typename D1Operator, typename Geometry>
+  void CompactLaplace<dim,D2Operator,D1Operator,Geometry>
+  ::matrix(dealii::SparseMatrix<double> &matrix_Laplace) const
+  {
+    AssertThrow(false,dealii::ExcNotImplemented());
   }
 }
 
