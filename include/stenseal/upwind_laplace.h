@@ -45,6 +45,8 @@ namespace stenseal
      */
     void matrix(dealii::SparseMatrix<double> &matrix_Laplace) const;
 
+    unsigned int max_rowlength() const;
+
   };
 
 
@@ -109,6 +111,33 @@ namespace stenseal
     else {
       AssertThrow(false,dealii::ExcNotImplemented());
     }
+
+  }
+
+  template <int dim, typename DmT, typename Geometry>
+  unsigned int UpwindLaplace<dim,DmT,Geometry>
+  ::max_rowlength() const
+  {
+
+    const int height_r = Dm.height_r;
+    const int height_l = Dm.height_l;
+    const int width_l = Dm.width_l;
+    const int width_r = Dm.width_r;
+    const int width_i =  Dm.width_i;
+    // const auto lboundary = Dm.get_left_boundary_stencil();
+    // const auto rboundary = Dm.get_right_boundary_stencil();
+    const auto interior = Dm.get_interior_stencil();
+
+    int maxbdryw = std::max(width_l,width_r);
+
+    auto ioffset = interior.get_offsets();
+    int i_left_offset = ioffset[0];
+    int i_right_offset = ioffset[width_i-1];
+
+    int i_max_offset = std::max(i_right_offset,-i_left_offset);
+    int i_actual_width = 1+i_right_offset-i_left_offset;
+
+    return (maxbdryw-1)+i_actual_width + i_max_offset;
 
   }
 
