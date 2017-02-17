@@ -33,22 +33,23 @@ namespace stenseal
     const Metric<dim,Geometry> metric;
   public:
     /**
-   * Constructor. Takes the 1D compact second-derivative SBP operator `d2`, the
-   * 1D compact first-derivative SBP operator d1, and the geometry descriptor
-   * `g` of this grid block.
-   */
+     * Constructor. Takes the 1D compact second-derivative SBP operator `d2`, the
+     * 1D compact first-derivative SBP operator d1, and the geometry descriptor
+     * `g` of this grid block.
+     */
     CompactLaplace(const D2Operator d2, const D1Operator d1, const Geometry geom);
 
-  /**
-   * Apply this operator to the vector `src` writing the result into `dst`.
-   */
+    /**
+     * Apply this operator to the vector `src` writing the result into `dst`.
+     */
     void apply(dealii::Vector<double> &dst, const dealii::Vector<double> &src) const;
-     /**
-     *Retuns operator in matrix-form
+
+
+    /**
+     * Retuns operator in matrix-form
      */
     void matrix(dealii::SparseMatrix<double> &matrix_Laplace, dealii::SparsityPattern &sp_D2 ) const;
   };
-
 
 
   //---------------------------------------------------------------------------
