@@ -77,47 +77,51 @@ double run_matrix_free_benchmark(const OpT &op, const unsigned int n_nodes_tot)
   return 1.0e3*timer.wall_time()/NREPS;
 }
 
-// template <typename OpT>
-// double run_matrix_based_benchmark(const OpT &op, const unsigned int n_nodes_tot)
-// {
-//   dealii::Timer timer;
+template <typename OpT>
+double run_matrix_based_benchmark(const OpT &op, const unsigned int n_nodes_tot)
+{
+  dealii::Timer timer;
 
-//   dealii::Vector<double> u(n_nodes_tot);
-//   dealii::Vector<double> v(n_nodes_tot);
+  dealii::SparsityPattern sparsity_pattern(n_nodes_tot,op.max_rowlength());
+  sparsity_pattern.compress();
 
-//   dealii::SparseMatrix<double> spmat;
-//   op.matrix(spmat);
+  dealii::SparseMatrix<double> spmat(sparsity_pattern);
 
-//   for(auto &uval : u) {
-//     uval = 1.0;
-//   }
+  op.matrix(spmat);
 
-//   // warm up
-//   for(int r = 0; r < 10; ++r) {
-//     spmat.vmult(v,u);
-//     u.swap(v);
-//   }
+  dealii::Vector<double> u(n_nodes_tot);
+  dealii::Vector<double> v(n_nodes_tot);
 
-//   timer.restart();
+  for(auto &uval : u) {
+    uval = 1.0;
+  }
 
-//   for(int r = 0; r < NREPS; ++r) {
-//     spmat.vmult(v,u);
-//     u.swap(v);
-//   }
-//   timer.stop();
+  // warm up
+  for(int r = 0; r < 10; ++r) {
+    spmat.vmult(v,u);
+    u.swap(v);
+  }
 
-//   return 1.0e3*timer.wall_time()/NREPS;
+  timer.restart();
 
-// }
+  for(int r = 0; r < NREPS; ++r) {
+    spmat.vmult(v,u);
+    u.swap(v);
+  }
+  timer.stop();
+
+  return 1.0e3*timer.wall_time()/NREPS;
+
+}
 
 
 template <bool use_matrix, typename OpT>
 double run_benchmark(const OpT &op, const unsigned int n_nodes_tot)
 {
-  // if(!use_matrix)
+  if(!use_matrix)
     return run_matrix_free_benchmark(op,n_nodes_tot);
-  // else
-    // return run_matrix_based_benchmark(op,n_nodes_tot);
+  else
+    return run_matrix_based_benchmark(op,n_nodes_tot);
 }
 
 template <int dim, typename Geometry, bool use_matrix, typename OperatorType>
@@ -212,10 +216,10 @@ int main(int argc, char *argv[])
 
   all_benchmarks<dim,stenseal::CartesianGeometry<dim>,false>();
 
-  // printf("\n");
-  // printf(" == Matrix-based == \n");
+  printf("\n");
+  printf(" == Matrix-based == \n");
 
-  // all_benchmarks<dim,stenseal::CartesianGeometry<dim>,true>();
+  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,true>();
 
   printf("\n");
   printf("\n");
@@ -228,9 +232,9 @@ int main(int argc, char *argv[])
 
   all_benchmarks<dim,stenseal::GeneralGeometry<dim>,false>();
 
-  // printf("\n");
-  // printf(" == Matrix-based == \n");
+  printf("\n");
+  printf(" == Matrix-based == \n");
 
-  // all_benchmarks<dim,stenseal::GeneralGeometry<dim>,true>();
+  all_benchmarks<dim,stenseal::GeneralGeometry<dim>,true>();
 
 }
