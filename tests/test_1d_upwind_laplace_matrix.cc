@@ -53,8 +53,8 @@ double mref_2nd_order[] = {
 
 
 template <typename OperatorType>
-     bool test_matrix(OperatorType Dm, int order)
-     {
+bool test_matrix(OperatorType Dm, int order)
+{
       const int dim = 1;
       const int n = 10;
       bool all_conv = false;
@@ -64,14 +64,13 @@ template <typename OperatorType>
       typedef stenseal::CartesianGeometry<dim> Geometry;
       Geometry geometry(n_nodes);
 
-      dealii::SparsityPattern sp_Laplace(n,n);
-      sp_Laplace.compress();
-      dealii::SparseMatrix<double> matrix_Laplace(sp_Laplace);
+      dealii::SparsityPattern sp_Laplace;
+      dealii::SparseMatrix<double> matrix_Laplace;
 
 
       stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm,geometry);
 
-      op.matrix(matrix_Laplace);
+      op.matrix(matrix_Laplace,sp_Laplace);
       double diff=0;
 
       if(order == 2){
