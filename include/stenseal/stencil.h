@@ -166,6 +166,7 @@ namespace stenseal
 
   struct Symbol
   {
+    constexpr Symbol(){}
     constexpr Accessor operator[](int i) const
     {
       return Accessor{i};
