@@ -149,6 +149,10 @@ int main(int argc, char *argv[])
   printf("Fourth order Compact:\n");
   all_conv = test_operator(stenseal::compact_operators_4th_order(),3.9,3.4) && all_conv;
 
+  printf("Sixth order Compact:\n");
+  all_conv = test_operator(stenseal::compact_operators_6th_order(),2.9,5.9) && all_conv;
+
+
   if(all_conv) {
     printf("Proper convergence order attained\n");
     return 0;
