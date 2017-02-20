@@ -291,13 +291,17 @@ namespace stenseal
       }
     }
 
-
     sp_Laplace.reinit(N,N,max_rowlength());
     sp_Laplace.compress();
     matrix_Laplace.reinit(sp_Laplace);
 
+    dealii::Vector<double> inverse_jacobian(N);
+    const auto &inv_jac = metric.inverse_jacobian();
+    for(int i = 0; i<N; ++i){
+        inverse_jacobian[i] = inv_jac.get(i);
+    }
 
-    matrixDm.dealii::SparseMatrix<double>::mmult(matrix_Laplace,matrixDp);
+    matrixDm.dealii::SparseMatrix<double>::mmult(matrix_Laplace,matrixDp,inverse_jacobian);
 
   }
 
