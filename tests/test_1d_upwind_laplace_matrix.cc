@@ -76,26 +76,26 @@ bool test_matrix(OperatorType Dm, int order)
       if(order == 2){
         for(int i = 0; i < n; ++i){
          for(int j = 0; j <n; ++j){
-          diff = diff + matrix_Laplace.dealii::SparseMatrix<double>::el(i,j)-mref_2nd_order[i*n+j];
+          diff = diff + fabs( matrix_Laplace.dealii::SparseMatrix<double>::el(i,j)-mref_2nd_order[i*n+j] );
         }
       }
 
     }else if(order == 3){
       for(int i = 0; i < n; ++i){
        for(int j = 0; j <n; ++j){
-        diff = diff +  matrix_Laplace.dealii::SparseMatrix<double>::el(i,j)-mref_3rd_order[i*n+j];
+        diff = diff + fabs( matrix_Laplace.dealii::SparseMatrix<double>::el(i,j)-mref_3rd_order[i*n+j] );
       }
     }
 
   }else if(order == 4){
     for(int i = 0; i < n; ++i){
      for(int j = 0; j <n; ++j){
-      diff = diff +  matrix_Laplace.dealii::SparseMatrix<double>::el(i,j)-mref_4th_order[i*n+j];
+      diff = diff +  fabs( matrix_Laplace.dealii::SparseMatrix<double>::el(i,j)-mref_4th_order[i*n+j] );
     }
   }
 }
 
-double tol = 1e-14;
+double tol = 1e-13;
 if( diff < tol && diff > -tol){
   all_conv = true;
   printf("OK\n");
