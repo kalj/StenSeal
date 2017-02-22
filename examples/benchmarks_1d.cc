@@ -3,11 +3,13 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/base/numbers.h>
 #include <deal.II/base/timer.h>
+#include <string>
 
 #include "stenseal/operator.h"
 #include "stenseal/upwind_laplace.h"
 #include "stenseal/compact_laplace.h"
 #include "stenseal/operator_lib.h"
+
 
 #define NREPS 1000
 
@@ -82,12 +84,10 @@ double run_matrix_based_benchmark(const OpT &op, const unsigned int n_nodes_tot)
 {
   dealii::Timer timer;
 
-  dealii::SparsityPattern sparsity_pattern(n_nodes_tot,op.max_rowlength());
-  sparsity_pattern.compress();
+  dealii::SparsityPattern sparsity_pattern;
+  dealii::SparseMatrix<double> spmat;
 
-  dealii::SparseMatrix<double> spmat(sparsity_pattern);
-
-  op.matrix(spmat);
+  op.matrix(spmat,sparsity_pattern);
 
   dealii::Vector<double> u(n_nodes_tot);
   dealii::Vector<double> v(n_nodes_tot);
@@ -128,7 +128,6 @@ template <int dim, typename Geometry, bool use_matrix, typename OperatorType>
 void benchmark_upwind_operator(const OperatorType &Dm,
                                const unsigned int minsize, const unsigned int maxsize)
 {
-  printf("%12s %17s\n","n_dofs","t_apply (ms)");
 
   for(unsigned int n=minsize; n<=maxsize; n*=2) {
 
@@ -140,7 +139,7 @@ void benchmark_upwind_operator(const OperatorType &Dm,
 
     double t = run_benchmark<use_matrix>(op,geometry.get_n_nodes_total());
 
-    printf("%12d %17.5g\n",n,t);
+    printf("%12d, %17.5g;\n",n,t);
   }
 }
 
@@ -148,8 +147,6 @@ template <int dim, typename Geometry, bool use_matrix, typename OperatorTypeD2, 
 void benchmark_compact_operator(const std::pair<OperatorTypeD2,OperatorTypeD1> &ops,
                                 const unsigned int minsize, const unsigned int maxsize)
 {
-  printf("%12s %17s\n","n_dofs","t_apply (ms)");
-
   for(unsigned int n=minsize; n<=maxsize; n*=2) {
 
     std::array<unsigned int,dim> n_nodes{ n };
@@ -160,48 +157,57 @@ void benchmark_compact_operator(const std::pair<OperatorTypeD2,OperatorTypeD1> &
 
     double t = run_benchmark<use_matrix>(op,geometry.get_n_nodes_total());
 
-    printf("%12d %17.5g\n",n,t);
+    printf("%12d, %17.5g;\n",n,t);
   }
 }
 
 template <int dim,typename Geometry, bool use_matrix>
-void all_benchmarks()
+void all_benchmarks(std::string str)
 {
   const unsigned int minsize = 1<<19; //512k
   const unsigned int maxsize = 1<<23; // 8M
 
-
-  printf("Second order Upwind\n");
+  std::cout << "\n Second_order_Upwind" << str << " = { \n";
   benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_2nd_order(),
                                                      minsize,maxsize);
-  printf("\n");
+  printf("};\n");
 
-  printf("Kalles Second order Upwind\n");
-  benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_2nd_order_kalle(),
-                                                     minsize,maxsize);
-  printf("\n");
+//  std::cout << " \n Kalles_Second_order_Upwind" << str << " = { \n";
+//  benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_2nd_order_kalle(),
+//                                                   minsize,maxsize);
+// printf("};\n");
 
-  printf("Third order Upwind\n");
-  benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_3rd_order(),
-                                                     minsize,maxsize);
-  printf("\n");
+// std::cout << "\n Third_order_Upwind" << str << " = { \n";
+// benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_3rd_order(),
+//                                                  minsize,maxsize);
+// printf("};\n");
 
-  printf("Fourth order Upwind\n");
+  std::cout << "\n Fourth_order_Upwind" << str << " = { \n";
   benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_4th_order(),
+                                                 minsize,maxsize);
+    printf("};\n");
+
+
+  std::cout << "\n Sixth_order_Upwind" << str << " = { \n";
+  benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_6th_order(),
                                                      minsize,maxsize);
-  printf("\n");
+  printf("};\n");
 
-  if(!use_matrix) {
-    printf("Second order Compact\n");
-    benchmark_compact_operator<dim,Geometry,use_matrix>(stenseal::compact_operators_2nd_order(),
+
+  std::cout << "\n Second_order_Compact" << str << " = { \n";
+  benchmark_compact_operator<dim,Geometry,use_matrix>(stenseal::compact_operators_2nd_order(),
                                                         minsize,maxsize);
-    printf("\n");
+  printf("}; \n");
 
-    printf("Fourth order Compact\n");
-    benchmark_compact_operator<dim,Geometry,use_matrix>(stenseal::compact_operators_4th_order(),
+  std::cout << "\n Fourth_order_Compact" << str << " = { \n";
+  benchmark_compact_operator<dim,Geometry,use_matrix>(stenseal::compact_operators_4th_order(),
                                                         minsize,maxsize);
+  printf("}; \n");
 
-  }
+  std::cout << "\n Sixth_order_Compact" << str << " = { \n";
+  benchmark_compact_operator<dim,Geometry,use_matrix>(stenseal::compact_operators_6th_order(),
+                                                        minsize,maxsize);
+  printf("}; \n");
 }
 
 int main(int argc, char *argv[])
@@ -209,34 +215,37 @@ int main(int argc, char *argv[])
   dealii::MultithreadInfo::set_thread_limit(1);
 
   const int dim = 1;
-  printf("-------------------------------------------------------- \n");
-  printf("------------------ Cartesian Geometry ------------------ \n");
-  printf("-------------------------------------------------------- \n");
+  printf("%% Matlab file from Stenseal benchmark containing \n");
+  printf("%% Cell Arrays: %12s, %17s\n","n_dofs","t_apply (ms)");
+  printf("\n");
+
+  printf("%%-------------------------------------------------------- \n");
+  printf("%%------------------ Cartesian Geometry ------------------ \n");
+  printf("%%-------------------------------------------------------- \n");
 
   printf("\n");
-  printf(" == Matrix-free == \n");
+  printf("%% == Matrix-free == \n");
 
-  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,false>();
-
-  printf("\n");
-  printf(" == Matrix-based == \n");
-
-  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,true>();
+  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,false>("_Cartesian_Matrix");
 
   printf("\n");
-  printf("\n");
-  printf("-------------------------------------------------------- \n");
-  printf("------------------- General Geometry ------------------- \n");
-  printf("-------------------------------------------------------- \n");
+  printf("%% == Matrix-based == \n");
+  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,true>("_Cartesian_Matrix");
+
 
   printf("\n");
-  printf(" == Matrix-free == \n");
-
-  all_benchmarks<dim,stenseal::GeneralGeometry<dim>,false>();
+  printf("%%-------------------------------------------------------- \n");
+  printf("%%------------------- General Geometry ------------------- \n");
+  printf("%%-------------------------------------------------------- \n");
 
   printf("\n");
-  printf(" == Matrix-based == \n");
+  printf("%% == Matrix-free == \n");
 
-  all_benchmarks<dim,stenseal::GeneralGeometry<dim>,true>();
+  all_benchmarks<dim,stenseal::GeneralGeometry<dim>,false>("_General");
+
+  printf("\n");
+  printf("%% == Matrix-based == \n");
+
+  all_benchmarks<dim,stenseal::GeneralGeometry<dim>,true>("_General_Matrix");
 
 }
