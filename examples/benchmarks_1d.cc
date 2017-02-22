@@ -3,12 +3,13 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/base/numbers.h>
 #include <deal.II/base/timer.h>
+#include <string>
 
 #include "stenseal/operator.h"
 #include "stenseal/upwind_laplace.h"
 #include "stenseal/compact_laplace.h"
 #include "stenseal/operator_lib.h"
-#include "string"
+
 
 #define NREPS 1000
 
@@ -83,10 +84,8 @@ double run_matrix_based_benchmark(const OpT &op, const unsigned int n_nodes_tot)
 {
   dealii::Timer timer;
 
-  dealii::SparsityPattern sparsity_pattern;//(n_nodes_tot,op.max_rowlength());
-  //sparsity_pattern.compress();
-
-  dealii::SparseMatrix<double> spmat;//(sparsity_pattern);
+  dealii::SparsityPattern sparsity_pattern;
+  dealii::SparseMatrix<double> spmat;
 
   op.matrix(spmat,sparsity_pattern);
 
@@ -129,7 +128,6 @@ template <int dim, typename Geometry, bool use_matrix, typename OperatorType>
 void benchmark_upwind_operator(const OperatorType &Dm,
                                const unsigned int minsize, const unsigned int maxsize)
 {
- // printf("%12s %17s\n","n_dofs","t_apply (ms)");
 
   for(unsigned int n=minsize; n<=maxsize; n*=2) {
 
@@ -149,8 +147,6 @@ template <int dim, typename Geometry, bool use_matrix, typename OperatorTypeD2, 
 void benchmark_compact_operator(const std::pair<OperatorTypeD2,OperatorTypeD1> &ops,
                                 const unsigned int minsize, const unsigned int maxsize)
 {
-  // printf("%12s %17s\n","n_dofs","t_apply (ms)");
-
   for(unsigned int n=minsize; n<=maxsize; n*=2) {
 
     std::array<unsigned int,dim> n_nodes{ n };
@@ -212,9 +208,6 @@ void all_benchmarks(std::string str)
   benchmark_compact_operator<dim,Geometry,use_matrix>(stenseal::compact_operators_6th_order(),
                                                         minsize,maxsize);
   printf("}; \n");
-
-
-
 }
 
 int main(int argc, char *argv[])
@@ -222,36 +215,37 @@ int main(int argc, char *argv[])
   dealii::MultithreadInfo::set_thread_limit(1);
 
   const int dim = 1;
-//  printf("-------------------------------------------------------- \n");
-//  printf("------------------ Cartesian Geometry ------------------ \n");
-//  printf("-------------------------------------------------------- \n");
+  printf("%% Matlab file from Stenseal benchmark containing \n");
+  printf("%% Cell Arrays: %12s, %17s\n","n_dofs","t_apply (ms)");
+  printf("\n");
 
-//  printf("\n");
-// printf(" == Matrix-free == \n");
-
-  std::string std = "_Cartesian";
-
-  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,false>(std);
+  printf("%%-------------------------------------------------------- \n");
+  printf("%%------------------ Cartesian Geometry ------------------ \n");
+  printf("%%-------------------------------------------------------- \n");
 
   printf("\n");
- // printf(" == Matrix-based == \n");
-  std = "_Cartesian_Matrix";
-  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,true>(std);
+  printf("%% == Matrix-free == \n");
+
+  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,false>("_Cartesian_Matrix");
 
   printf("\n");
-// printf("\n");
-// printf("-------------------------------------------------------- \n");
-// printf("------------------- General Geometry ------------------- \n");
-// printf("-------------------------------------------------------- \n");
+  printf("%% == Matrix-based == \n");
+  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,true>("_Cartesian_Matrix");
+
 
   printf("\n");
-//  printf(" == Matrix-free == \n");
+  printf("%%-------------------------------------------------------- \n");
+  printf("%%------------------- General Geometry ------------------- \n");
+  printf("%%-------------------------------------------------------- \n");
 
-all_benchmarks<dim,stenseal::GeneralGeometry<dim>,false>("_General");
+  printf("\n");
+  printf("%% == Matrix-free == \n");
 
- // printf("\n");
- // printf(" == Matrix-based == \n");
+  all_benchmarks<dim,stenseal::GeneralGeometry<dim>,false>("_General");
 
-all_benchmarks<dim,stenseal::GeneralGeometry<dim>,true>("_General_Matrix");
+  printf("\n");
+  printf("%% == Matrix-based == \n");
+
+  all_benchmarks<dim,stenseal::GeneralGeometry<dim>,true>("_General_Matrix");
 
 }
