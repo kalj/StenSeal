@@ -10,7 +10,7 @@
 #include "stenseal/operator_lib.h"
 #include "string"
 
-#define NREPS 10
+#define NREPS 1000
 
 template <int dim, typename Geometry>
 struct Wrapper;
@@ -176,27 +176,27 @@ void all_benchmarks(std::string str)
                                                      minsize,maxsize);
   printf("};\n");
 
-  std::cout << " \n Kalles_Second_order_Upwind" << str << " = { \n";
-  benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_2nd_order_kalle(),
-                                                     minsize,maxsize);
-  printf("};\n");
+//  std::cout << " \n Kalles_Second_order_Upwind" << str << " = { \n";
+//  benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_2nd_order_kalle(),
+//                                                   minsize,maxsize);
+// printf("};\n");
 
-  std::cout << "\n Third_order_Upwind" << str << " = { \n";
-  benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_3rd_order(),
-                                                     minsize,maxsize);
-  printf("};\n");
+// std::cout << "\n Third_order_Upwind" << str << " = { \n";
+// benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_3rd_order(),
+//                                                  minsize,maxsize);
+// printf("};\n");
 
   std::cout << "\n Fourth_order_Upwind" << str << " = { \n";
   benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_4th_order(),
                                                  minsize,maxsize);
     printf("};\n");
 
-/*
-   printf("\n Sixth_order_Upwind = {\n");
+
+  std::cout << "\n Sixth_order_Upwind" << str << " = { \n";
   benchmark_upwind_operator<dim,Geometry,use_matrix>(stenseal::upwind_operator_6th_order(),
                                                      minsize,maxsize);
   printf("};\n");
-*/
+
 
   std::cout << "\n Second_order_Compact" << str << " = { \n";
   benchmark_compact_operator<dim,Geometry,use_matrix>(stenseal::compact_operators_2nd_order(),
@@ -252,6 +252,6 @@ all_benchmarks<dim,stenseal::GeneralGeometry<dim>,false>("_General");
  // printf("\n");
  // printf(" == Matrix-based == \n");
 
-  all_benchmarks<dim,stenseal::GeneralGeometry<dim>,true>("_General_Matrix");
+all_benchmarks<dim,stenseal::GeneralGeometry<dim>,true>("_General_Matrix");
 
 }

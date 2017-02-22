@@ -3,13 +3,13 @@ data_benchmark;
 matrixFreeUpwind = {
     Second_order_Upwind_Cartesian , '2nd o. MF';
     Fourth_order_Upwind_Cartesian , '4th o. MF';
-    % Sixth_order_Upwind_Cartesian , '6th o. MF';
+    Sixth_order_Upwind_Cartesian , '6th o. MF';
 };
 
 matrixUpwind = {
     Second_order_Upwind_Cartesian_Matrix ,'2nd o. M';
     Fourth_order_Upwind_Cartesian_Matrix ,'4th o. M';
-    %Sixth_order_Upwind_Cartesian_Matrix ,'6th o. M';
+    Sixth_order_Upwind_Cartesian_Matrix ,'6th o. M';
 };
 
 matrixFreeCompact = {
@@ -48,13 +48,13 @@ savepng(fh, 'matrix_vs_matrixfree_upwind')
 matrixFreeUpwind = {
     Second_order_Upwind_General , '2nd o. MF';
     Fourth_order_Upwind_General , '4th o. MF';
-    % Sixth_order_Upwind_Cartesian , '6th o. MF';
+    Sixth_order_Upwind_Cartesian , '6th o. MF';
 };
 
 matrixUpwind = {
     Second_order_Upwind_General_Matrix ,'2nd o. M';
     Fourth_order_Upwind_General_Matrix ,'4th o. M';
-    %Sixth_order_Upwind_Cartesian_Matrix ,'6th o. M';
+    Sixth_order_Upwind_General_Matrix ,'6th o. M';
 };
 
 matrixFreeCompact = {
