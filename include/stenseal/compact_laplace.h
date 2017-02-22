@@ -146,20 +146,20 @@ namespace stenseal
     for(int i = 0; i <height_b; ++i) {
       for(int j = 0; j< width_b; j++){
        matrix_Laplace.set(i,j, boundary[i][j].apply(metric.inverse_jacobian().template get_left_boundary_array<width_b>()));
-     }
-   }
+      }
+    }
 
    for(int i = height_b; i < N - height_b; i++ ){
     for(int j = 0; j < width_i; j++){
       matrix_Laplace.add(i,j + i - offset, interior[j].apply(metric.inverse_jacobian().template get_centered_array<width_i>(i)));
     }
-  }
+   }
 
   for(int i = N - height_b; i < N; i++ ){
     for(int j = 0; j< width_b; j++){
-     matrix_Laplace.set(i, N- width_b+j, -boundary[i-N+height_b][j].apply_flip(metric.inverse_jacobian().template get_right_boundary_array<width_b>()));
+     matrix_Laplace.set(i, N - j - 1, boundary[-i+N-1][j].apply(metric.inverse_jacobian().template get_right_boundary_array<width_b>()));
+    }
    }
- }
 
 }
 else {
