@@ -61,7 +61,21 @@ namespace stenseal
   CompactLaplace<dim,D2Operator,D1Operator,Geometry>
   ::CompactLaplace(const D2Operator d2, const D1Operator d1, const Geometry geom)
     : D2(d2), D1(d1), geometry(geom), metric(geom,d1)
-  {}
+  {
+
+    // check for large enough mesh
+    if(dim==1) {
+      const unsigned int d2_minsize = std::max(2*D2Operator::height_b,
+                                               D2Operator::width_b);
+      // should have same sizes on left and right side
+      const unsigned int d1_minsize = std::max(D1Operator::height_r+D1Operator::height_l,
+                                               std::max(D1Operator::width_l,
+                                                        D1Operator::width_r));
+
+      AssertThrow(geometry.get_n_nodes(0) >= std::max(d2_minsize,d1_minsize),
+                  dealii::ExcMessage("Too small mesh for SBP operator"));
+    }
+  }
 
 
   template <int dim, typename D2Operator, typename D1Operator, typename Geometry>
@@ -92,80 +106,80 @@ namespace stenseal
   void CompactLaplace<dim,D2Operator,D1Operator,Geometry>
   ::matrix(dealii::SparseMatrix<double> &matrix_Laplace, dealii::SparsityPattern &sp_D2) const
   {
-   if(dim == 1) {
-    const unsigned int N = geometry.get_n_nodes(0);
-    std::vector<unsigned int> row_lengths(N);
+    if(dim == 1) {
+      const unsigned int N = geometry.get_n_nodes(0);
+      std::vector<unsigned int> row_lengths(N);
 
-    const auto &inv_jac = metric.inverse_jacobian();
-    const int width_i = D2Operator::width_i;
-    const int width_b = D2Operator::width_b;
-    const int height_b = D2Operator::height_b;
-    const auto boundary = D2.get_boundary();
-    const auto interior = D2.get_interior();
+      const auto &inv_jac = metric.inverse_jacobian();
+      const int width_i = D2Operator::width_i;
+      const int width_b = D2Operator::width_b;
+      const int height_b = D2Operator::height_b;
+      const auto boundary = D2.get_boundary();
+      const auto interior = D2.get_interior();
 
-    for(int i = 0; i <height_b; ++i) {
-      row_lengths[i] = width_b;
-    }
-
-    for(int i = height_b; i < N - height_b; i++){
-      row_lengths[i] = width_i;
-    }
-
-    for(int i = N - height_b; i < N; i++ ){
-      row_lengths[i] = width_b;
-    }
-
-    sp_D2.reinit(N,N,row_lengths);
-
-    for(int i = 0; i <height_b; ++i) {
-      for(int j = 0; j< width_b; j++){
-        sp_D2.add(i,j);
+      for(int i = 0; i <height_b; ++i) {
+        row_lengths[i] = width_b;
       }
-    }
 
-    int offset = (width_i-1)/2;
-    for(int i = height_b; i < N - height_b; i++ ){
-      for(int j = 0; j < width_i; j++){
-        sp_D2.add(i,j + i - offset);
+      for(int i = height_b; i < N - height_b; i++){
+        row_lengths[i] = width_i;
       }
-    }
 
-
-    for(int i = N - height_b; i < N; i++ ){
-      for(int j = 0; j< width_b; j++){
-        sp_D2.add(i, N- width_b+j);
+      for(int i = N - height_b; i < N; i++ ){
+        row_lengths[i] = width_b;
       }
-    }
 
-    sp_D2.compress();
-    matrix_Laplace.reinit(sp_D2);
+      sp_D2.reinit(N,N,row_lengths);
 
-     // divide by h^2, and multiply by inverse jacobian
-     // const double h2 = geometry.get_mapped_h(0)*geometry.get_mapped_h(0);
-
-    for(int i = 0; i <height_b; ++i) {
-      for(int j = 0; j< width_b; j++){
-       matrix_Laplace.set(i,j, boundary[i][j].apply(metric.inverse_jacobian().template get_left_boundary_array<width_b>()));
+      for(int i = 0; i <height_b; ++i) {
+        for(int j = 0; j< width_b; j++){
+          sp_D2.add(i,j);
+        }
       }
-    }
 
-   for(int i = height_b; i < N - height_b; i++ ){
-    for(int j = 0; j < width_i; j++){
-      matrix_Laplace.add(i,j + i - offset, interior[j].apply(metric.inverse_jacobian().template get_centered_array<width_i>(i)));
-    }
-   }
+      int offset = (width_i-1)/2;
+      for(int i = height_b; i < N - height_b; i++ ){
+        for(int j = 0; j < width_i; j++){
+          sp_D2.add(i,j + i - offset);
+        }
+      }
 
-  for(int i = N - height_b; i < N; i++ ){
-    for(int j = 0; j< width_b; j++){
-     matrix_Laplace.set(i, N - j - 1, boundary[-i+N-1][j].apply(metric.inverse_jacobian().template get_right_boundary_array<width_b>()));
-    }
-   }
 
-}
-else {
-  AssertThrow(false,dealii::ExcNotImplemented());
-}
-}
+      for(int i = N - height_b; i < N; i++ ){
+        for(int j = 0; j< width_b; j++){
+          sp_D2.add(i, N- width_b+j);
+        }
+      }
+
+      sp_D2.compress();
+      matrix_Laplace.reinit(sp_D2);
+
+      // divide by h^2, and multiply by inverse jacobian
+      // const double h2 = geometry.get_mapped_h(0)*geometry.get_mapped_h(0);
+
+      for(int i = 0; i <height_b; ++i) {
+        for(int j = 0; j< width_b; j++){
+          matrix_Laplace.set(i,j, boundary[i][j].apply(metric.inverse_jacobian().template get_left_boundary_array<width_b>()));
+        }
+      }
+
+      for(int i = height_b; i < N - height_b; i++ ){
+        for(int j = 0; j < width_i; j++){
+          matrix_Laplace.add(i,j + i - offset, interior[j].apply(metric.inverse_jacobian().template get_centered_array<width_i>(i)));
+        }
+      }
+
+      for(int i = N - height_b; i < N; i++ ){
+        for(int j = 0; j< width_b; j++){
+          matrix_Laplace.set(i, N - j - 1, boundary[-i+N-1][j].apply(metric.inverse_jacobian().template get_right_boundary_array<width_b>()));
+        }
+      }
+
+    }
+    else {
+      AssertThrow(false,dealii::ExcNotImplemented());
+    }
+  }
 }
 
 #endif /* _COMPACT_LAPLACE_H */
