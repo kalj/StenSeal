@@ -212,6 +212,14 @@ void all_benchmarks(std::string str)
 
 int main(int argc, char *argv[])
 {
+
+  // disable denormalized values
+#ifdef __APPLE__
+  fesetenv(FE_DFL_DISABLE_SSE_DENORMS_ENV);
+#else
+  _mm_setcsr(_mm_getcsr() | (_MM_DENORMALS_ZERO_ON));
+#endif
+
   dealii::MultithreadInfo::set_thread_limit(1);
 
   const int dim = 1;
