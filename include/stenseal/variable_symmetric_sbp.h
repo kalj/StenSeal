@@ -2,8 +2,8 @@
 -*
 -*/
 
-#ifndef _METRIC_OPERATOR_H
-#define _METRIC_OPERATOR_H
+#ifndef _VARIABLE_SYMMETRIC_SBP_H
+#define _VARIABLE_SYMMETRIC_SBP_H
 
 #include <vector>
 
@@ -17,7 +17,7 @@ namespace stenseal
   template <int width_interior,
             int width_boundary,
             int height_boundary>
-  class MetricOperator
+  class VariableSymmetricSBP
   {
   private:
     const StencilTensor2D<width_interior,width_interior> interior;
@@ -28,7 +28,7 @@ namespace stenseal
     const static int height_b  = height_boundary;
     const static int width_i   = width_interior;
 
-    constexpr MetricOperator(const StencilTensor2D<width_interior,width_interior> i,
+    constexpr VariableSymmetricSBP(const StencilTensor2D<width_interior,width_interior> i,
                              const StencilTensor3D<height_boundary,width_boundary,width_boundary> b);
 
     template <typename MetricCoefficient>
@@ -49,8 +49,8 @@ namespace stenseal
   template <int width_interior,
             int width_boundary,
             int height_boundary>
-  constexpr MetricOperator<width_interior,width_boundary,height_boundary>
-  ::MetricOperator(const StencilTensor2D<width_interior,width_interior> i,
+  constexpr VariableSymmetricSBP<width_interior,width_boundary,height_boundary>
+  ::VariableSymmetricSBP(const StencilTensor2D<width_interior,width_interior> i,
                    const StencilTensor3D<height_boundary,width_boundary,width_boundary> b)
     : interior(i), boundary(b)
   {}
@@ -59,7 +59,7 @@ namespace stenseal
             int width_boundary,
             int height_boundary>
   template <typename MetricCoefficient>
-  void MetricOperator<width_interior,width_boundary,height_boundary>
+  void VariableSymmetricSBP<width_interior,width_boundary,height_boundary>
   ::apply(dealii::Vector<double> &dst,
           const dealii::Vector<double> &src,
           const MetricCoefficient &coeff,
@@ -91,7 +91,7 @@ namespace stenseal
   template <int width_interior,
             int width_boundary,
             int height_boundary>
-  const StencilTensor3D<height_boundary,width_boundary,width_boundary>& MetricOperator<width_interior,width_boundary,height_boundary>
+  const StencilTensor3D<height_boundary,width_boundary,width_boundary>& VariableSymmetricSBP<width_interior,width_boundary,height_boundary>
   ::get_boundary() const
   {
     return boundary;
@@ -100,7 +100,7 @@ namespace stenseal
   template <int width_interior,
             int width_boundary,
             int height_boundary>
-  const StencilTensor2D<width_interior,width_interior>& MetricOperator<width_interior,width_boundary,height_boundary>
+  const StencilTensor2D<width_interior,width_interior>& VariableSymmetricSBP<width_interior,width_boundary,height_boundary>
   ::get_interior() const
   {
     return interior;
@@ -108,4 +108,4 @@ namespace stenseal
 
 }
 
-#endif /* _METRIC_OPERATOR_H */
+#endif /* _VARIABLE_SYMMETRIC_SBP_H */
