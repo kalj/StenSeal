@@ -88,20 +88,18 @@ namespace stenseal
     return stenseal::Operator<7,8,6,10,6>(interior, left_boundary_block, right_boundary_block);
   }
 
-  constexpr std::pair<MetricOperator<3,3,2>,Operator<3,2,1,2,1>> compact_operators_2nd_order()
+  constexpr std::pair<MetricOperator<3,3,2>,SymmetricSBP<3,2,1>> compact_operators_2nd_order()
   {
     const stenseal::Symbol sym;
 
 
     constexpr stenseal::StencilTensor2D<1,2> d1_boundary((-1.0)*sym[0] + (1.0)*sym[1]);
-    constexpr stenseal::StencilTensor2D<1,2> d1_boundary_r((-1.0)*sym[-1] + (1.0)*sym[0]);
 
     constexpr stenseal::Stencil<3> d1_interior((-0.5)*sym[-1] + (0.0)*sym[0] + (0.5)*sym[1]);
 
 
-    constexpr stenseal::Operator<3,2,1,2,1> D1 (d1_interior,
-                                                d1_boundary,
-                                                d1_boundary_r);
+    constexpr stenseal::SymmetricSBP<3,2,1> D1 (d1_interior,
+                                                d1_boundary);
 
     constexpr stenseal::StencilTensor2D<3,3> d2_interior( (0.5)*sym[-1] +  (0.5)*sym[0] +  (0.0)*sym[1],
                                                          (-0.5)*sym[-1] + (-1.0)*sym[0] + (-0.5)*sym[1],
@@ -126,7 +124,7 @@ namespace stenseal
 
 
 
-  constexpr std::pair<MetricOperator<5,8,6>,Operator<5,6,4,6,4>> compact_operators_4th_order()
+  constexpr std::pair<MetricOperator<5,8,6>,SymmetricSBP<5,6,4>> compact_operators_4th_order()
   {
     const stenseal::Symbol sym;
 
@@ -137,17 +135,8 @@ namespace stenseal
                                                          (0.093023255813953488372)*sym[-2] + (-0.68604651162790697674)*sym[-1] +                      (0.0)*sym[0] +   (0.68604651162790697674)*sym[1] + (-0.093023255813953488372)*sym[2] +                      (0.0)*sym[3],
                                                          (0.030612244897959183673)*sym[-3] +                     (0.0)*sym[-2] + (-0.60204081632653061224)*sym[-1] +                      (0.0)*sym[0] +   (0.65306122448979591837)*sym[1] + (-0.081632653061224489796)*sym[2]);
 
-
-    constexpr stenseal::StencilTensor2D<4,6> d1_boundary_r((0.081632653061224489796)*sym[-2] + (-0.65306122448979591837)*sym[-1] +                      (0.0)*sym[0] +  (0.60204081632653061224)*sym[1] +                     (0.0)*sym[2] + (-0.030612244897959183673)*sym[3],
-                                                                               (0.0)*sym[-3] + (0.093023255813953488372)*sym[-2] + (-0.68604651162790697674)*sym[-1] +                     (0.0)*sym[0] +  (0.68604651162790697674)*sym[1] + (-0.093023255813953488372)*sym[2],
-                                                                               (0.0)*sym[-4] +                     (0.0)*sym[-3] +                     (0.0)*sym[-2] +                   (-0.5)*sym[-1] +                     (0.0)*sym[0] +                      (0.5)*sym[1],
-                                                                               (0.0)*sym[-5] +                     (0.0)*sym[-4] + (0.088235294117647058824)*sym[-3] + (0.23529411764705882353)*sym[-2] + (-1.7352941176470588235)*sym[-1] +    (1.4117647058823529412)*sym[0]);
-
-
-
-    constexpr stenseal::Operator<5,6,4,6,4> D1 (d1_interior,
-                                                d1_boundary,
-                                                d1_boundary_r);
+    constexpr stenseal::SymmetricSBP<5,6,4> D1 (d1_interior,
+                                                d1_boundary);
 
 
     constexpr stenseal::StencilTensor2D<5,5> d2_interior(                  (-0.125)*sym[-2] +  (0.16666666666666666667)*sym[-1] + (-0.125)*sym[0] +                     (0.0)*sym[1] +                      (0.0)*sym[2],
@@ -224,7 +213,7 @@ namespace stenseal
   }
 
 
-  constexpr std::pair<MetricOperator<7,12,9>,Operator<7,9,6,9,6>> compact_operators_6th_order()
+  constexpr std::pair<MetricOperator<7,12,9>,SymmetricSBP<7,9,6>> compact_operators_6th_order()
   {
     const stenseal::Symbol sym;
 
@@ -237,19 +226,8 @@ namespace stenseal
                                                          (-0.036210680656540983335)*sym[-4] +  (0.10540094493378227014)*sym[-3] + (0.015764336127391587183)*sym[-2] + (-0.70790544257598853051)*sym[-1] +                      (0.0)*sym[0] +   (0.76919941396264734923)*sym[1] + (-0.16452964326520248826)*sym[2] + (0.018281071473911387584)*sym[3] +                     (0.0)*sym[4],
                                                          (-0.011398193015049851162)*sym[-5] + (0.020437334208704083238)*sym[-4] + (0.011220896474664954212)*sym[-3] + (0.063183694641875565168)*sym[-2] + (-0.69164902442681364114)*sym[-1] +                      (0.0)*sym[0] +  (0.73970913906075203762)*sym[1] + (-0.14794182781215040752)*sym[2] + (0.016437980868016711947)*sym[3]);
 
-
-    constexpr stenseal::StencilTensor2D<6,9> d1_boundary_r((-0.016437980868016711947)*sym[-3] +   (0.14794182781215040752)*sym[-2] +  (-0.73970913906075203762)*sym[-1] +                       (0.0)*sym[0] +   (0.69164902442681364114)*sym[1] + (-0.063183694641875565168)*sym[2] + (-0.011220896474664954212)*sym[3] + (-0.020437334208704083238)*sym[4] +  (0.011398193015049851162)*sym[5],
-                                                                                (0.0)*sym[-4] + (-0.018281071473911387584)*sym[-3] +   (0.16452964326520248826)*sym[-2] +  (-0.76919941396264734923)*sym[-1] +                      (0.0)*sym[0] +   (0.70790544257598853051)*sym[1] + (-0.015764336127391587183)*sym[2] +  (-0.10540094493378227014)*sym[3] +  (0.036210680656540983335)*sym[4],
-                                                                                (0.0)*sym[-5] +                      (0.0)*sym[-4] + (-0.013435342414629595074)*sym[-3] +  (0.051642265516118612823)*sym[-2] + (-0.52026228505048166539)*sym[-1] +                      (0.0)*sym[0] +   (0.30668119136114846413)*sym[1] +   (0.29008748438681486448)*sym[2] +  (-0.11471331379897042879)*sym[3],
-                                                                                (0.0)*sym[-6] +                      (0.0)*sym[-5] +                      (0.0)*sym[-4] +  (0.018129342917256430212)*sym[-3] + (0.022902190275814859888)*sym[-2] + (-0.60623552360914700898)*sym[-1] +                      (0.0)*sym[0] +   (0.63645109513790742994)*sym[1] + (-0.071247104721829934704)*sym[2],
-                                                                                (0.0)*sym[-7] +                      (0.0)*sym[-6] +                      (0.0)*sym[-5] +  (0.014903449191300044419)*sym[-4] + (0.069112065532624278319)*sym[-3] + (-0.25881608737683237109)*sym[-2] + (-0.28725862297825077718)*sym[-1] +                      (0.0)*sym[0] +   (0.46205919563115838145)*sym[1],
-                                                                                (0.0)*sym[-8] +                      (0.0)*sym[-7] +                      (0.0)*sym[-6] + (-0.036577936277543798838)*sym[-5] + (-0.10448806928404152927)*sym[-4] +  (0.45039830657827195637)*sym[-3] +  (0.14151285874487307126)*sym[-2] +  (-2.0333786787006760122)*sym[-1] +    (1.5825335189391164188)*sym[0]);
-
-
-
-    constexpr stenseal::Operator<7,9,6,9,6> D1 (d1_interior,
-                                                d1_boundary,
-                                                d1_boundary_r);
+    constexpr stenseal::SymmetricSBP<7,9,6> D1 (d1_interior,
+                                                d1_boundary);
 
     constexpr stenseal::StencilTensor2D<7,7> d2_interior(  (0.030555555555555555556)*sym[-3] + (-0.025)*sym[-2] + (-0.025)*sym[-1] + (0.030555555555555555556)*sym[0] +    (0.0)*sym[1] +    (0.0)*sym[2] +                       (0.0)*sym[3],
                                                                              (-0.05)*sym[-3] + (-0.175)*sym[-2] +    (0.3)*sym[-1] +                  (-0.175)*sym[0] +  (-0.05)*sym[1] +    (0.0)*sym[2] +                       (0.0)*sym[3],
