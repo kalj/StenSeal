@@ -5,7 +5,7 @@
 #include <deal.II/base/timer.h>
 #include <string>
 
-#include "stenseal/operator.h"
+#include "stenseal/asymmetric_sbp.h"
 #include "stenseal/upwind_laplace.h"
 #include "stenseal/compact_laplace.h"
 #include "stenseal/operator_lib.h"

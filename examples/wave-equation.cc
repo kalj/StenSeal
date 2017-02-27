@@ -4,7 +4,7 @@
 #include <deal.II/base/function.h>
 
 #include "stenseal/geometry.h"
-#include "stenseal/operator.h"
+#include "stenseal/asymmetric_sbp.h"
 #include "stenseal/upwind_laplace.h"
 
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   //=============================================================================
   // upwind 2nd order operators
   //=============================================================================
-  typedef stenseal::Operator<2,2,1,2,1> OperatorType;
+  typedef stenseal::AsymmetricSBP<2,2,1,2,1> OperatorType;
   const stenseal::Symbol usym;
 
   // now define operator like this:
