@@ -2,8 +2,8 @@
  *
  */
 
-#ifndef _OPERATOR_H
-#define _OPERATOR_H
+#ifndef _SYMMETRIC_SBP_H
+#define _SYMMETRIC_SBP_H
 
 #include <vector>
 
@@ -33,14 +33,14 @@ namespace stenseal
     const Stencil<width_interior> interior;
   public:
     const static int height_b = height_boundary;
-    const static int width_b = width_boundary_r;
+    const static int width_b = width_boundary;
     const static int width_i = width_interior;
 
     /**
      * Constructor. Takes the interior `Stencil` `i`, and the `StencilTensor2D`
      * `b` for the boundary .
      */
-    constexpr Operator(const Stencil<width_interior> i,
+    constexpr SymmetricSBP(const Stencil<width_interior> i,
                        const StencilTensor2D<height_boundary,width_boundary> b);
 
     /**
@@ -53,7 +53,7 @@ namespace stenseal
 
     Stencil<width_interior> get_interior_stencil() const;
 
-    StencilTensor2D<height_boundary_l,width_boundary_l> get_boundary_stencil() const;
+    StencilTensor2D<height_boundary,width_boundary> get_boundary_stencil() const;
 
   };
 
@@ -64,20 +64,21 @@ namespace stenseal
   template <int width_interior,
             int width_boundary,
             int height_boundary>
-  constexpr Operator<width_interior,width_boundary,height_boundary>
-  ::Operator(const Stencil<width_interior> i,
+  constexpr SymmetricSBP<width_interior,width_boundary,height_boundary>
+  ::SymmetricSBP(const Stencil<width_interior> i,
              const StencilTensor2D<height_boundary,width_boundary> b)
-    :interior(i), lboundary(l), rboundary(r)
+    :interior(i), boundary(b)
   {}
 
   template <int width_interior,
             int width_boundary,
             int height_boundary>
-  void Operator<width_interior,width_boundary,height_boundary>
+  void SymmetricSBP<width_interior,width_boundary,height_boundary>
   ::apply(dealii::Vector<double> &dst,
           const dealii::Vector<double> &src,
           const unsigned int n) const
   {
+
     for(int i = 0; i < height_boundary; ++i) {
       dst[i] = boundary[i].apply(src,i);
     }
@@ -87,14 +88,14 @@ namespace stenseal
     }
 
     for(int i = n-height_boundary; i < n; ++i) {
-      dst[i] = boundary[i-n+height_boundary_r].apply_flip(src,i);
+      dst[i] = boundary[i-n+height_boundary].apply_flip(src,i);
     }
   }
 
   template <int width_interior,
-            int width_boundary_l,
-            int height_boundary_l>
-  Stencil<width_interior> Operator<width_interior,width_boundary,height_boundary>
+            int width_boundary,
+            int height_boundary>
+  Stencil<width_interior> SymmetricSBP<width_interior,width_boundary,height_boundary>
   ::get_interior_stencil() const{
     return interior;
   }
@@ -102,11 +103,11 @@ namespace stenseal
   template <int width_interior,
             int width_boundary,
             int height_boundary>
-  StencilTensor2D<height_boundary,width_boundary>  Operator<width_interior,width_boundary,height_boundary>
-  ::get_left_boundary_stencil() const{
+  StencilTensor2D<height_boundary,width_boundary> SymmetricSBP<width_interior,width_boundary,height_boundary>
+  ::get_boundary_stencil() const{
     return boundary;
   }
 
 }
 
-#endif /* _OPERATOR_H */
+#endif /* _SYMMETRIC_SBP_H */

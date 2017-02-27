@@ -16,7 +16,7 @@ function [fh, ph, lh] = dofs_time_plot(m, group1legends, group1, group2legends, 
         ph{1,i}.LineStyle = '--';
         ph{1,i}.Color = Color.colors{i};
     end
-%    axis([0 10*scale 0 1.4*1e2])
+
     hold off
 
     lh = legend([group1legends; group2legends]);
@@ -24,7 +24,7 @@ function [fh, ph, lh] = dofs_time_plot(m, group1legends, group1, group2legends, 
     lh.Location = 'NorthEast';
 
     xlabel('N','interpreter','latex');
-    ylabel('Time(ms)/(e16 N)', 'interpreter', 'latex')
+    ylabel('Time(ms)/(N 1e-6)', 'interpreter', 'latex')
 
     ah = gca;
     ah.TickLabelInterpreter = 'latex';
