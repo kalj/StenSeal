@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
   printf("\n");
   printf("%% == Matrix-free == \n");
 
-  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,false>("_Cartesian_Matrix");
+  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,false>("_Cartesian");
 
   printf("\n");
   printf("%% == Matrix-based == \n");
