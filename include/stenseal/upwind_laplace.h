@@ -59,7 +59,17 @@ namespace stenseal
   UpwindLaplace<dim,DmT,Geometry>
   ::UpwindLaplace(const DmT dm, const Geometry &g)
     : Dm(dm), geometry(g), metric(g,dm)
-  {}
+  {
+    // check for large enough mesh
+    if(dim==1) {
+      const unsigned int minsize = std::max(DmT::height_r+DmT::height_l,
+                                            std::max(DmT::width_l,
+                                                     DmT::width_r));
+
+      AssertThrow(geometry.get_n_nodes(0) >= minsize,
+                  dealii::ExcMessage("Too small mesh for SBP operator"));
+    }
+  }
 
 
   template <int dim, typename DmT, typename Geometry>
@@ -298,7 +308,7 @@ namespace stenseal
     dealii::Vector<double> inverse_jacobian(N);
     const auto &inv_jac = metric.inverse_jacobian();
     for(int i = 0; i<N; ++i){
-        inverse_jacobian[i] = inv_jac.get(i);
+      inverse_jacobian[i] = inv_jac.get(i);
     }
 
     matrixDm.dealii::SparseMatrix<double>::mmult(matrix_Laplace,matrixDp,inverse_jacobian);
