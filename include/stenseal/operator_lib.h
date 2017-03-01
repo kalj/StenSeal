@@ -4,7 +4,7 @@
 #include "stenseal/stencil.h"
 #include "stenseal/operator.h"
 #include "stenseal/quadrature.h"
-#include "stenseal/symmetric_SBP.h"
+#include "stenseal/symmetric_sbp.h"
 #include "stenseal/metric_operator.h"
 #include "stenseal/operator_lib.h"
 #include "stenseal/stencil_tensor.h"

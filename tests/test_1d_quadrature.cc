@@ -79,7 +79,7 @@ quad.apply(v,u,n);
 double diff =0;
 
 if(order == 2){
- for(int i = 0; i <n; ++i){
+ for(int i = 0; i <n; ++i)
    diff = diff + fabs( v[i] - qref_comp_2[i] );
 }else if(order == 4){
  for(int i = 0; i <n; ++i){
