@@ -66,8 +66,8 @@ double mref_2nd_order[] = {
                       0,                   0,                   0,                   0,                   0,                   0,   0.001299516301367,  -0.016723245205521,  -0.027840174062285,   0.058447257741219,   0.333594543220580,   0.150493400267925,  -1.305115733727477,   0.805844435464193,
                       0,                   0,                  0,                   0,                   0,                   0,  -0.001774557164044,   0.020413421619919,  -0.112835755444083,  -0.253091098849647,   0.794563018182594,   0.994279469137081,  -2.905763449774142,   1.464208952292323};
 
-template <typename OperatorType>
-bool test_matrix(OperatorType Dm, int order, unsigned int n)
+template <typename OperatorType, typename Quadrature>
+bool test_matrix(std::pair<OperatorType , Quadrature> Dm, int order, unsigned int n)
 {
       const int dim = 1;
       bool all_conv = false;
@@ -80,7 +80,7 @@ bool test_matrix(OperatorType Dm, int order, unsigned int n)
       dealii::SparseMatrix<double> matrix_Laplace;
 
 
-      stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm,geometry);
+      stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm.first,geometry);
       op.matrix(matrix_Laplace,sp_Laplace);
       double diff=0;
 
