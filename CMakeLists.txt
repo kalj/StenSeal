@@ -6,23 +6,19 @@ PROJECT(stenseal)
 # include deal.II, but don't use their macros to retain control
 FIND_PACKAGE(deal.II 8.0 REQUIRED
   HINTS ${DEAL_II_DIR} ../ ../../ $ENV{DEAL_II_DIR}
-  )
+)
 
 STRING(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 IF (deal.II_FOUND)
-    INCLUDE_DIRECTORIES(${DEAL_II_INCLUDE_DIRS})
-    IF (${uppercase_CMAKE_BUILD_TYPE} STREQUAL "DEBUG")
-        SET(DEAL_II_LIB
-            ${DEAL_II_LIBRARIES_DEBUG}
-            )
-    ELSE()
-        SET(DEAL_II_LIB
-            ${DEAL_II_LIBRARIES_RELEASE}
-            )
-        ENDIF()
+  INCLUDE_DIRECTORIES(${DEAL_II_INCLUDE_DIRS})
+  IF (${uppercase_CMAKE_BUILD_TYPE} STREQUAL "DEBUG")
+    SET(DEAL_II_LIB ${DEAL_II_LIBRARIES_DEBUG})
+  ELSE()
+    SET(DEAL_II_LIB ${DEAL_II_LIBRARIES_RELEASE})
+  ENDIF()
     MESSAGE("-- DEAL.II include files found at ${DEAL_II_INCLUDE_DIRS}")
-ELSE()
-    MESSAGE("-- DEAL.II package not found")
+  ELSE()
+  MESSAGE("-- DEAL.II package not found")
 ENDIF()
 
 # we crave modern C++
