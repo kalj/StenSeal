@@ -3,6 +3,8 @@
 
 #include "stenseal/stencil.h"
 #include "stenseal/operator.h"
+#include "stenseal/quadrature.h"
+#include "stenseal/symmetric_sbp.h"
 #include "stenseal/metric_operator.h"
 #include "stenseal/operator_lib.h"
 #include "stenseal/stencil_tensor.h"
@@ -10,7 +12,7 @@
 
 namespace stenseal
 {
-  constexpr Operator<2,2,1,2,1> upwind_operator_2nd_order_kalle()
+  constexpr std::pair<Operator<2,2,1,2,1>,Quadrature<2>> upwind_operator_2nd_order_kalle()
   {
     const stenseal::Symbol usym;
 
@@ -21,10 +23,16 @@ namespace stenseal
     constexpr stenseal::StencilTensor2D<1,2> left_boundary_block(left_boundary);
     constexpr stenseal::StencilTensor2D<1,2> right_boundary_block(right_boundary);
 
-    return stenseal::Operator<2,2,1,2,1> (interior, left_boundary_block, right_boundary_block);
+    constexpr stenseal::Operator<2,2,1,2,1> Dm (interior, left_boundary_block, right_boundary_block);
+
+    constexpr std::array<double,2> quad = {0.25 , 1.25};
+
+    constexpr stenseal::Quadrature<2> H (quad);
+
+    return std::make_pair(Dm,H);
   }
 
-  constexpr Operator<3,2,2,4,2> upwind_operator_2nd_order()
+  constexpr std::pair<Operator<3,2,2,4,2>,Quadrature<2>> upwind_operator_2nd_order()
   {
     const stenseal::Symbol usym;
 
@@ -33,10 +41,16 @@ namespace stenseal
                                                                  (-1.0)*usym[-1] + 1.0*usym[0]);
     constexpr stenseal::StencilTensor2D<2,4> right_boundary_block(0.4*usym[-2] + (-1.6)*usym[-1] + 1.0*usym[0] + 0.2*usym[1],
                                                                   0.0*usym[-3] + 2.0*usym[-2] + (-5.0)*usym[-1] +3.0*usym[0]);
-    return stenseal::Operator<3,2,2,4,2>(interior, left_boundary_block, right_boundary_block);
+    constexpr stenseal::Operator<3,2,2,4,2> Dm (interior, left_boundary_block, right_boundary_block);
+
+    constexpr std::array<double,2> quad = {0.25 , 1.25};
+
+    constexpr stenseal::Quadrature<2> H (quad);
+
+    return std::make_pair(Dm,H);
   }
 
-  constexpr Operator<4,4,3,5,3> upwind_operator_3rd_order()
+  constexpr std::pair<Operator<4,4,3,5,3>, Quadrature<3>> upwind_operator_3rd_order()
   {
     const stenseal::Symbol usym;
 
@@ -47,10 +61,17 @@ namespace stenseal
     constexpr stenseal::StencilTensor2D<3,5> right_boundary_block((4.0/23.0)*usym[-2] + (-24.0/23.0)*usym[-1] + (11.0/23.0)*usym[0] + (11.0/23.0)*usym[1] + (-2.0/23.0)*usym[2],
                                                                   0*usym[-3] + (1.0/7.0)*usym[-2] + (-23.0/28.0)*usym[-1] + (3.0/14.0) *usym[0] + (13.0/28.0)*usym[1],
                                                                   0*usym[-4] + 0*usym[-3] + (4.0/9.0)*usym[-2] + (-17.0/9.0)*usym[-1] + (13.0/9.0)*usym[0]);
-    return stenseal::Operator<4,4,3,5,3>(interior, left_boundary_block, right_boundary_block);
+    constexpr stenseal::Operator<4,4,3,5,3> Dm (interior, left_boundary_block, right_boundary_block);
+
+    constexpr std::array<double,3> quad = { 0.375000000000000,   1.166666666666667,   0.958333333333333 };
+
+
+    constexpr stenseal::Quadrature<3> H (quad);
+
+    return std::make_pair(Dm,H);
   }
 
-  constexpr Operator<5,5,4,7,4> upwind_operator_4th_order()
+  constexpr std::pair< Operator<5,5,4,7,4>, Quadrature<4>> upwind_operator_4th_order()
   {
     const stenseal::Symbol usym;
 
@@ -64,10 +85,16 @@ namespace stenseal
                                                                   0*usym[-4] + (-4.0/41.0)*usym[-3] + (24.0/41.0)*usym[-2] + (-389.0/246.0)*usym[-1]  + (29.0/41.0)*usym[0]  + (39.0/82.0)*usym[1] + (-11.0/123.0)*usym[2],
                                                                   0*usym[-5] +  0*usym[-4] + (-4.0/61.0)*usym[-3] + (43.0/183.0)*usym[-2] + (-99.0/122.0)*usym[-1] + (11.0/61.0)*usym[0] + (169.0/366.0)*usym[1],
                                                                   0*usym[-6] + 0*usym[-5] + 0*usym[-4] + (-3.0/98.0)*usym[-3] + (29.0/49.0)*usym[-2] + (-205.0/98.0)*usym[-1] + (75.0/49.0)*usym[0]);
-    return stenseal::Operator<5,5,4,7,4>(interior, left_boundary_block, right_boundary_block);
+    constexpr stenseal::Operator<5,5,4,7,4> Dm(interior, left_boundary_block, right_boundary_block);
+
+    constexpr std::array<double,4> quad = {0.340277777777778,   1.270833333333333,   0.854166666666667,   1.034722222222222 };
+
+    constexpr stenseal::Quadrature<4> H (quad);
+
+    return std::make_pair(Dm,H);
   }
 
-  constexpr Operator<7,8,6,10,6> upwind_operator_6th_order()
+  constexpr std::pair< Operator<7,8,6,10,6>, Quadrature<6> >upwind_operator_6th_order()
   {
     const stenseal::Symbol usym;
 
@@ -85,23 +112,27 @@ namespace stenseal
                                                                      (                 0)*usym[-7] + (                 0)*usym[-6] + (                 0)*usym[-5] + ( 0.026915887850467)*usym[-4] + (-0.197069524204597)*usym[-3] + ( 0.589452745232692)*usym[-2] + (-1.258766829227482)*usym[-1] + ( 0.306540940575249)*usym[0] + ( 0.629259919521358)*usym[1] + (-0.096333139747688)*usym[2],
                                                                      (                 0)*usym[-8] + (                 0)*usym[-7] + (                 0)*usym[-6] + (                 0)*usym[-5] + ( 0.039560344515975)*usym[-4] + (-0.030739159126096)*usym[-3] + (-0.105980141988699)*usym[-2] + (-0.393228064437077)*usym[-1] + ( 0.029551468764759)*usym[0] + ( 0.460835552271137)*usym[1],
                                                                      (                 0)*usym[-9] + (                 0)*usym[-8] + (                 0)*usym[-7] + (                 0)*usym[-6] + (-0.054021710000147)*usym[-5] + (-0.023993033880123)*usym[-4] + ( 0.302855902188632)*usym[-3] + ( 0.275607596716317)*usym[-2] + (-2.093702214477299)*usym[-1] + ( 1.593253459452621)*usym[0]);
-    return stenseal::Operator<7,8,6,10,6>(interior, left_boundary_block, right_boundary_block);
+    constexpr stenseal::Operator<7,8,6,10,6> Dm(interior, left_boundary_block, right_boundary_block);
+
+    constexpr std::array<double,6> quad =  {0.315115740740741,   1.394560185185185,   0.619212962962963,   1.248842592592593,   0.907523148148148,   1.014745370370370};
+
+    constexpr stenseal::Quadrature<6> H(quad);
+
+    return std::make_pair(Dm,H);
   }
 
-  constexpr std::pair<MetricOperator<3,3,2>,Operator<3,2,1,2,1>> compact_operators_2nd_order()
+  constexpr std::tuple<MetricOperator<3,3,2>,SymmetricSBP<3,2,1>,Quadrature<1>> compact_operators_2nd_order()
   {
     const stenseal::Symbol sym;
 
 
     constexpr stenseal::StencilTensor2D<1,2> d1_boundary((-1.0)*sym[0] + (1.0)*sym[1]);
-    constexpr stenseal::StencilTensor2D<1,2> d1_boundary_r((-1.0)*sym[-1] + (1.0)*sym[0]);
 
     constexpr stenseal::Stencil<3> d1_interior((-0.5)*sym[-1] + (0.0)*sym[0] + (0.5)*sym[1]);
 
 
-    constexpr stenseal::Operator<3,2,1,2,1> D1 (d1_interior,
-                                                d1_boundary,
-                                                d1_boundary_r);
+    constexpr stenseal::SymmetricSBP<3,2,1> D1 (d1_interior,
+                                                d1_boundary);
 
     constexpr stenseal::StencilTensor2D<3,3> d2_interior( (0.5)*sym[-1] +  (0.5)*sym[0] +  (0.0)*sym[1],
                                                          (-0.5)*sym[-1] + (-1.0)*sym[0] + (-0.5)*sym[1],
@@ -121,12 +152,17 @@ namespace stenseal
 
     constexpr stenseal::MetricOperator<3,3,2> D2 (d2_interior,
                                                   d2_boundary);
-    return std::make_pair(D2,D1);
+
+    constexpr std::array<double,1> quad = {0.5};
+
+    constexpr stenseal::Quadrature<1> H (quad);
+
+    return std::make_tuple(D2,D1,H);
   }
 
 
 
-  constexpr std::pair<MetricOperator<5,8,6>,Operator<5,6,4,6,4>> compact_operators_4th_order()
+  constexpr std::tuple<MetricOperator<5,8,6>,SymmetricSBP<5,6,4>, Quadrature<6>> compact_operators_4th_order()
   {
     const stenseal::Symbol sym;
 
@@ -137,17 +173,8 @@ namespace stenseal
                                                          (0.093023255813953488372)*sym[-2] + (-0.68604651162790697674)*sym[-1] +                      (0.0)*sym[0] +   (0.68604651162790697674)*sym[1] + (-0.093023255813953488372)*sym[2] +                      (0.0)*sym[3],
                                                          (0.030612244897959183673)*sym[-3] +                     (0.0)*sym[-2] + (-0.60204081632653061224)*sym[-1] +                      (0.0)*sym[0] +   (0.65306122448979591837)*sym[1] + (-0.081632653061224489796)*sym[2]);
 
-
-    constexpr stenseal::StencilTensor2D<4,6> d1_boundary_r((0.081632653061224489796)*sym[-2] + (-0.65306122448979591837)*sym[-1] +                      (0.0)*sym[0] +  (0.60204081632653061224)*sym[1] +                     (0.0)*sym[2] + (-0.030612244897959183673)*sym[3],
-                                                                               (0.0)*sym[-3] + (0.093023255813953488372)*sym[-2] + (-0.68604651162790697674)*sym[-1] +                     (0.0)*sym[0] +  (0.68604651162790697674)*sym[1] + (-0.093023255813953488372)*sym[2],
-                                                                               (0.0)*sym[-4] +                     (0.0)*sym[-3] +                     (0.0)*sym[-2] +                   (-0.5)*sym[-1] +                     (0.0)*sym[0] +                      (0.5)*sym[1],
-                                                                               (0.0)*sym[-5] +                     (0.0)*sym[-4] + (0.088235294117647058824)*sym[-3] + (0.23529411764705882353)*sym[-2] + (-1.7352941176470588235)*sym[-1] +    (1.4117647058823529412)*sym[0]);
-
-
-
-    constexpr stenseal::Operator<5,6,4,6,4> D1 (d1_interior,
-                                                d1_boundary,
-                                                d1_boundary_r);
+    constexpr stenseal::SymmetricSBP<5,6,4> D1 (d1_interior,
+                                                d1_boundary);
 
 
     constexpr stenseal::StencilTensor2D<5,5> d2_interior(                  (-0.125)*sym[-2] +  (0.16666666666666666667)*sym[-1] + (-0.125)*sym[0] +                     (0.0)*sym[1] +                      (0.0)*sym[2],
@@ -220,11 +247,16 @@ namespace stenseal
 
     constexpr stenseal::MetricOperator<5,8,6> D2 (d2_interior,
                                                   d2_boundary);
-    return std::make_pair(D2,D1);
+
+    constexpr std::array<double,6> quad = {0.272727272727273,   1.621288167980855,   0.141741267470520,   1.744774462430583,   0.653104903834157,   1.066363925556612 };
+
+    constexpr stenseal::Quadrature<6> H (quad);
+
+    return std::make_tuple(D2,D1,H);
   }
 
 
-  constexpr std::pair<MetricOperator<7,12,9>,Operator<7,9,6,9,6>> compact_operators_6th_order()
+  constexpr std::tuple<MetricOperator<7,12,9>,SymmetricSBP<7,9,6>, Quadrature<8> >compact_operators_6th_order()
   {
     const stenseal::Symbol sym;
 
@@ -237,19 +269,8 @@ namespace stenseal
                                                          (-0.036210680656540983335)*sym[-4] +  (0.10540094493378227014)*sym[-3] + (0.015764336127391587183)*sym[-2] + (-0.70790544257598853051)*sym[-1] +                      (0.0)*sym[0] +   (0.76919941396264734923)*sym[1] + (-0.16452964326520248826)*sym[2] + (0.018281071473911387584)*sym[3] +                     (0.0)*sym[4],
                                                          (-0.011398193015049851162)*sym[-5] + (0.020437334208704083238)*sym[-4] + (0.011220896474664954212)*sym[-3] + (0.063183694641875565168)*sym[-2] + (-0.69164902442681364114)*sym[-1] +                      (0.0)*sym[0] +  (0.73970913906075203762)*sym[1] + (-0.14794182781215040752)*sym[2] + (0.016437980868016711947)*sym[3]);
 
-
-    constexpr stenseal::StencilTensor2D<6,9> d1_boundary_r((-0.016437980868016711947)*sym[-3] +   (0.14794182781215040752)*sym[-2] +  (-0.73970913906075203762)*sym[-1] +                       (0.0)*sym[0] +   (0.69164902442681364114)*sym[1] + (-0.063183694641875565168)*sym[2] + (-0.011220896474664954212)*sym[3] + (-0.020437334208704083238)*sym[4] +  (0.011398193015049851162)*sym[5],
-                                                                                (0.0)*sym[-4] + (-0.018281071473911387584)*sym[-3] +   (0.16452964326520248826)*sym[-2] +  (-0.76919941396264734923)*sym[-1] +                      (0.0)*sym[0] +   (0.70790544257598853051)*sym[1] + (-0.015764336127391587183)*sym[2] +  (-0.10540094493378227014)*sym[3] +  (0.036210680656540983335)*sym[4],
-                                                                                (0.0)*sym[-5] +                      (0.0)*sym[-4] + (-0.013435342414629595074)*sym[-3] +  (0.051642265516118612823)*sym[-2] + (-0.52026228505048166539)*sym[-1] +                      (0.0)*sym[0] +   (0.30668119136114846413)*sym[1] +   (0.29008748438681486448)*sym[2] +  (-0.11471331379897042879)*sym[3],
-                                                                                (0.0)*sym[-6] +                      (0.0)*sym[-5] +                      (0.0)*sym[-4] +  (0.018129342917256430212)*sym[-3] + (0.022902190275814859888)*sym[-2] + (-0.60623552360914700898)*sym[-1] +                      (0.0)*sym[0] +   (0.63645109513790742994)*sym[1] + (-0.071247104721829934704)*sym[2],
-                                                                                (0.0)*sym[-7] +                      (0.0)*sym[-6] +                      (0.0)*sym[-5] +  (0.014903449191300044419)*sym[-4] + (0.069112065532624278319)*sym[-3] + (-0.25881608737683237109)*sym[-2] + (-0.28725862297825077718)*sym[-1] +                      (0.0)*sym[0] +   (0.46205919563115838145)*sym[1],
-                                                                                (0.0)*sym[-8] +                      (0.0)*sym[-7] +                      (0.0)*sym[-6] + (-0.036577936277543798838)*sym[-5] + (-0.10448806928404152927)*sym[-4] +  (0.45039830657827195637)*sym[-3] +  (0.14151285874487307126)*sym[-2] +  (-2.0333786787006760122)*sym[-1] +    (1.5825335189391164188)*sym[0]);
-
-
-
-    constexpr stenseal::Operator<7,9,6,9,6> D1 (d1_interior,
-                                                d1_boundary,
-                                                d1_boundary_r);
+    constexpr stenseal::SymmetricSBP<7,9,6> D1 (d1_interior,
+                                                d1_boundary);
 
     constexpr stenseal::StencilTensor2D<7,7> d2_interior(  (0.030555555555555555556)*sym[-3] + (-0.025)*sym[-2] + (-0.025)*sym[-1] + (0.030555555555555555556)*sym[0] +    (0.0)*sym[1] +    (0.0)*sym[2] +                       (0.0)*sym[3],
                                                                              (-0.05)*sym[-3] + (-0.175)*sym[-2] +    (0.3)*sym[-1] +                  (-0.175)*sym[0] +  (-0.05)*sym[1] +    (0.0)*sym[2] +                       (0.0)*sym[3],
@@ -391,7 +412,11 @@ namespace stenseal
 
     constexpr stenseal::MetricOperator<7,12,9> D2 (d2_interior,
                                                   d2_boundary);
-    return std::make_pair(D2,D1);
+     constexpr std::array<double,8> quad = {0.295013975497606,   1.525036100088183,   0.259327876984127,   1.794691082451499,   0.417023533950617,   1.275002480158730,   0.924872960758377,   1.009031990110859};
+
+    constexpr stenseal::Quadrature<8> H (quad);
+
+    return std::make_tuple(D2,D1,H);
   }
 }
 

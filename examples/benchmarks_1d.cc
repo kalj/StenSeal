@@ -124,8 +124,8 @@ double run_benchmark(const OpT &op, const unsigned int n_nodes_tot)
     return run_matrix_based_benchmark(op,n_nodes_tot);
 }
 
-template <int dim, typename Geometry, bool use_matrix, typename OperatorType>
-void benchmark_upwind_operator(const OperatorType &Dm,
+template <int dim, typename Geometry, bool use_matrix, typename OperatorType, typename Quadrature>
+void benchmark_upwind_operator(const std::pair<OperatorType, Quadrature > &Dm,
                                const unsigned int minsize, const unsigned int maxsize)
 {
 
@@ -135,7 +135,7 @@ void benchmark_upwind_operator(const OperatorType &Dm,
 
     const Geometry geometry = Wrapper<dim,Geometry>::make_geometry(n_nodes);
 
-    stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm,geometry);
+    stenseal::UpwindLaplace<dim,OperatorType,Geometry> op(Dm.first,geometry);
 
     double t = run_benchmark<use_matrix>(op,geometry.get_n_nodes_total());
 
@@ -143,8 +143,8 @@ void benchmark_upwind_operator(const OperatorType &Dm,
   }
 }
 
-template <int dim, typename Geometry, bool use_matrix, typename OperatorTypeD2, typename OperatorTypeD1>
-void benchmark_compact_operator(const std::pair<OperatorTypeD2,OperatorTypeD1> &ops,
+template <int dim, typename Geometry, bool use_matrix, typename OperatorTypeD2, typename OperatorTypeD1, typename Quadrature>
+void benchmark_compact_operator(const std::tuple<OperatorTypeD2,OperatorTypeD1,Quadrature> &ops,
                                 const unsigned int minsize, const unsigned int maxsize)
 {
   for(unsigned int n=minsize; n<=maxsize; n*=2) {
@@ -153,7 +153,7 @@ void benchmark_compact_operator(const std::pair<OperatorTypeD2,OperatorTypeD1> &
 
     const Geometry geometry = Wrapper<dim,Geometry>::make_geometry(n_nodes);
 
-    stenseal::CompactLaplace<dim,OperatorTypeD2,OperatorTypeD1,Geometry> op(ops.first,ops.second,geometry);
+    stenseal::CompactLaplace<dim,OperatorTypeD2,OperatorTypeD1,Geometry> op(std::get<0>(ops),std::get<1>(ops),geometry);
 
     double t = run_benchmark<use_matrix>(op,geometry.get_n_nodes_total());
 
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
   printf("\n");
   printf("%% == Matrix-free == \n");
 
-  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,false>("_Matrix");
+  all_benchmarks<dim,stenseal::CartesianGeometry<dim>,false>("_Cartesian");
 
   printf("\n");
   printf("%% == Matrix-based == \n");

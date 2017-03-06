@@ -8,8 +8,8 @@
 
 #include <fstream>
 
-template <typename OperatorTypeD2, typename OperatorTypeD1>
-void compute_l2_norm(std::pair<OperatorTypeD2,OperatorTypeD1> ops, unsigned int n,
+template <typename OperatorTypeD2, typename OperatorTypeD1, typename Quadrature>
+void compute_l2_norm(std::tuple<OperatorTypeD2,OperatorTypeD1,Quadrature> ops, unsigned int n,
                      double &l2_norm, double &l2_norm_interior)
 {
   const int dim = 1;
@@ -43,8 +43,7 @@ void compute_l2_norm(std::pair<OperatorTypeD2,OperatorTypeD1> ops, unsigned int 
 
   typedef stenseal::GeneralGeometry<dim> Geometry;
   Geometry geometry(n_nodes,nodes);
-
-  stenseal::CompactLaplace<dim,OperatorTypeD2,OperatorTypeD1,Geometry> op(ops.first,ops.second,geometry);
+  stenseal::CompactLaplace<dim,OperatorTypeD2,OperatorTypeD1,Geometry> op(std::get<0>(ops),std::get<1>(ops),geometry);
 
   dealii::Vector<double> u(n_nodes_tot);
 
@@ -101,8 +100,8 @@ void compute_l2_norm(std::pair<OperatorTypeD2,OperatorTypeD1> ops, unsigned int 
 }
 
 
-template <typename OperatorTypeD2, typename OperatorTypeD1>
-bool test_operator(std::pair<OperatorTypeD2,OperatorTypeD1> ops, float interior_p_ref, float full_p_ref)
+template <typename OperatorTypeD2, typename OperatorTypeD1, typename Quadrature>
+bool test_operator(std::tuple<OperatorTypeD2,OperatorTypeD1,Quadrature> ops, float interior_p_ref, float full_p_ref)
 {
   const int n_tests = 7;
   double full_norms[n_tests];

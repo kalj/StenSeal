@@ -67,10 +67,9 @@ namespace stenseal
     if(dim==1) {
       const unsigned int d2_minsize = std::max(2*D2Operator::height_b,
                                                D2Operator::width_b);
-      // should have same sizes on left and right side
-      const unsigned int d1_minsize = std::max(D1Operator::height_r+D1Operator::height_l,
-                                               std::max(D1Operator::width_l,
-                                                        D1Operator::width_r));
+      // has the same sizes on left and right side
+      const unsigned int d1_minsize = std::max(2*D1Operator::height_b,
+                                               D1Operator::width_b);
 
       AssertThrow(geometry.get_n_nodes(0) >= std::max(d2_minsize,d1_minsize),
                   dealii::ExcMessage("Too small mesh for SBP operator"));

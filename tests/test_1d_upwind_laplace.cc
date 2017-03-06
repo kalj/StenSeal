@@ -73,8 +73,8 @@ void compute_l2_norm(OperatorType Dm, unsigned int n, double &l2_norm, double &l
 }
 
 
-template <typename OperatorType>
-bool test_operator(OperatorType op, float interior_p_ref, float full_p_ref)
+template <typename OperatorType, typename Quadrature>
+bool test_operator(std::pair<OperatorType,Quadrature> op, float interior_p_ref, float full_p_ref)
 {
   const int n_tests = 7;
   double full_norms[n_tests];
@@ -82,7 +82,7 @@ bool test_operator(OperatorType op, float interior_p_ref, float full_p_ref)
   unsigned int size = 40;
 
   for(int i=0; i<n_tests; i++) {
-    compute_l2_norm(op,size,full_norms[i],interior_norms[i]);
+    compute_l2_norm(op.first,size,full_norms[i],interior_norms[i]);
     size *= 2;
   }
 
