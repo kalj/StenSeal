@@ -10,6 +10,9 @@
 #include "stenseal/compact_laplace.h"
 #include "stenseal/operator_lib.h"
 
+#ifdef __APPLE__
+  #include <fenv.h>
+#endif
 
 #define NREPS 1000
 
