@@ -2,17 +2,22 @@
 #define _OPERATOR_LIB_H
 
 #include "stenseal/stencil.h"
-#include "stenseal/operator.h"
 #include "stenseal/quadrature.h"
 #include "stenseal/symmetric_sbp.h"
-#include "stenseal/metric_operator.h"
+#include "stenseal/asymmetric_sbp.h"
+#include "stenseal/variable_symmetric_sbp.h"
 #include "stenseal/operator_lib.h"
 #include "stenseal/stencil_tensor.h"
 
 
 namespace stenseal
 {
-  constexpr std::pair<Operator<2,2,1,2,1>,Quadrature<2>> upwind_operator_2nd_order_kalle()
+
+  //---------------------------------------------------------------------------
+  // Upwind operators
+  //---------------------------------------------------------------------------
+
+  constexpr std::pair<AsymmetricSBP<2,2,1,2,1>,Quadrature<2>> upwind_operator_2nd_order_kalle()
   {
     const stenseal::Symbol usym;
 
@@ -23,7 +28,7 @@ namespace stenseal
     constexpr stenseal::StencilTensor2D<1,2> left_boundary_block(left_boundary);
     constexpr stenseal::StencilTensor2D<1,2> right_boundary_block(right_boundary);
 
-    constexpr stenseal::Operator<2,2,1,2,1> Dm (interior, left_boundary_block, right_boundary_block);
+    constexpr stenseal::AsymmetricSBP<2,2,1,2,1> Dm (interior, left_boundary_block, right_boundary_block);
 
     constexpr std::array<double,2> quad = {0.25 , 1.25};
 
@@ -32,7 +37,7 @@ namespace stenseal
     return std::make_pair(Dm,H);
   }
 
-  constexpr std::pair<Operator<3,2,2,4,2>,Quadrature<2>> upwind_operator_2nd_order()
+  constexpr std::pair<AsymmetricSBP<3,2,2,4,2>,Quadrature<2>> upwind_operator_2nd_order()
   {
     const stenseal::Symbol usym;
 
@@ -41,7 +46,7 @@ namespace stenseal
                                                                  (-1.0)*usym[-1] + 1.0*usym[0]);
     constexpr stenseal::StencilTensor2D<2,4> right_boundary_block(0.4*usym[-2] + (-1.6)*usym[-1] + 1.0*usym[0] + 0.2*usym[1],
                                                                   0.0*usym[-3] + 2.0*usym[-2] + (-5.0)*usym[-1] +3.0*usym[0]);
-    constexpr stenseal::Operator<3,2,2,4,2> Dm (interior, left_boundary_block, right_boundary_block);
+    constexpr stenseal::AsymmetricSBP<3,2,2,4,2> Dm (interior, left_boundary_block, right_boundary_block);
 
     constexpr std::array<double,2> quad = {0.25 , 1.25};
 
@@ -50,7 +55,7 @@ namespace stenseal
     return std::make_pair(Dm,H);
   }
 
-  constexpr std::pair<Operator<4,4,3,5,3>, Quadrature<3>> upwind_operator_3rd_order()
+  constexpr std::pair<AsymmetricSBP<4,4,3,5,3>, Quadrature<3>> upwind_operator_3rd_order()
   {
     const stenseal::Symbol usym;
 
@@ -61,7 +66,7 @@ namespace stenseal
     constexpr stenseal::StencilTensor2D<3,5> right_boundary_block((4.0/23.0)*usym[-2] + (-24.0/23.0)*usym[-1] + (11.0/23.0)*usym[0] + (11.0/23.0)*usym[1] + (-2.0/23.0)*usym[2],
                                                                   0*usym[-3] + (1.0/7.0)*usym[-2] + (-23.0/28.0)*usym[-1] + (3.0/14.0) *usym[0] + (13.0/28.0)*usym[1],
                                                                   0*usym[-4] + 0*usym[-3] + (4.0/9.0)*usym[-2] + (-17.0/9.0)*usym[-1] + (13.0/9.0)*usym[0]);
-    constexpr stenseal::Operator<4,4,3,5,3> Dm (interior, left_boundary_block, right_boundary_block);
+    constexpr stenseal::AsymmetricSBP<4,4,3,5,3> Dm (interior, left_boundary_block, right_boundary_block);
 
     constexpr std::array<double,3> quad = { 0.375000000000000,   1.166666666666667,   0.958333333333333 };
 
@@ -71,7 +76,7 @@ namespace stenseal
     return std::make_pair(Dm,H);
   }
 
-  constexpr std::pair< Operator<5,5,4,7,4>, Quadrature<4>> upwind_operator_4th_order()
+  constexpr std::pair< AsymmetricSBP<5,5,4,7,4>, Quadrature<4>> upwind_operator_4th_order()
   {
     const stenseal::Symbol usym;
 
@@ -85,7 +90,7 @@ namespace stenseal
                                                                   0*usym[-4] + (-4.0/41.0)*usym[-3] + (24.0/41.0)*usym[-2] + (-389.0/246.0)*usym[-1]  + (29.0/41.0)*usym[0]  + (39.0/82.0)*usym[1] + (-11.0/123.0)*usym[2],
                                                                   0*usym[-5] +  0*usym[-4] + (-4.0/61.0)*usym[-3] + (43.0/183.0)*usym[-2] + (-99.0/122.0)*usym[-1] + (11.0/61.0)*usym[0] + (169.0/366.0)*usym[1],
                                                                   0*usym[-6] + 0*usym[-5] + 0*usym[-4] + (-3.0/98.0)*usym[-3] + (29.0/49.0)*usym[-2] + (-205.0/98.0)*usym[-1] + (75.0/49.0)*usym[0]);
-    constexpr stenseal::Operator<5,5,4,7,4> Dm(interior, left_boundary_block, right_boundary_block);
+    constexpr stenseal::AsymmetricSBP<5,5,4,7,4> Dm(interior, left_boundary_block, right_boundary_block);
 
     constexpr std::array<double,4> quad = {0.340277777777778,   1.270833333333333,   0.854166666666667,   1.034722222222222 };
 
@@ -94,7 +99,7 @@ namespace stenseal
     return std::make_pair(Dm,H);
   }
 
-  constexpr std::pair< Operator<7,8,6,10,6>, Quadrature<6> >upwind_operator_6th_order()
+  constexpr std::pair< AsymmetricSBP<7,8,6,10,6>, Quadrature<6> >upwind_operator_6th_order()
   {
     const stenseal::Symbol usym;
 
@@ -112,7 +117,7 @@ namespace stenseal
                                                                      (                 0)*usym[-7] + (                 0)*usym[-6] + (                 0)*usym[-5] + ( 0.026915887850467)*usym[-4] + (-0.197069524204597)*usym[-3] + ( 0.589452745232692)*usym[-2] + (-1.258766829227482)*usym[-1] + ( 0.306540940575249)*usym[0] + ( 0.629259919521358)*usym[1] + (-0.096333139747688)*usym[2],
                                                                      (                 0)*usym[-8] + (                 0)*usym[-7] + (                 0)*usym[-6] + (                 0)*usym[-5] + ( 0.039560344515975)*usym[-4] + (-0.030739159126096)*usym[-3] + (-0.105980141988699)*usym[-2] + (-0.393228064437077)*usym[-1] + ( 0.029551468764759)*usym[0] + ( 0.460835552271137)*usym[1],
                                                                      (                 0)*usym[-9] + (                 0)*usym[-8] + (                 0)*usym[-7] + (                 0)*usym[-6] + (-0.054021710000147)*usym[-5] + (-0.023993033880123)*usym[-4] + ( 0.302855902188632)*usym[-3] + ( 0.275607596716317)*usym[-2] + (-2.093702214477299)*usym[-1] + ( 1.593253459452621)*usym[0]);
-    constexpr stenseal::Operator<7,8,6,10,6> Dm(interior, left_boundary_block, right_boundary_block);
+    constexpr stenseal::AsymmetricSBP<7,8,6,10,6> Dm(interior, left_boundary_block, right_boundary_block);
 
     constexpr std::array<double,6> quad =  {0.315115740740741,   1.394560185185185,   0.619212962962963,   1.248842592592593,   0.907523148148148,   1.014745370370370};
 
@@ -121,7 +126,12 @@ namespace stenseal
     return std::make_pair(Dm,H);
   }
 
-  constexpr std::tuple<MetricOperator<3,3,2>,SymmetricSBP<3,2,1>,Quadrature<1>> compact_operators_2nd_order()
+
+  //---------------------------------------------------------------------------
+  // Compact operators
+  //---------------------------------------------------------------------------
+
+  constexpr std::tuple<VariableSymmetricSBP<3,3,2>,SymmetricSBP<3,2,1>,Quadrature<1>> compact_operators_2nd_order()
   {
     const stenseal::Symbol sym;
 
@@ -150,7 +160,7 @@ namespace stenseal
                                                            bdry_row2);
 
 
-    constexpr stenseal::MetricOperator<3,3,2> D2 (d2_interior,
+    constexpr stenseal::VariableSymmetricSBP<3,3,2> D2 (d2_interior,
                                                   d2_boundary);
 
     constexpr std::array<double,1> quad = {0.5};
@@ -162,7 +172,7 @@ namespace stenseal
 
 
 
-  constexpr std::tuple<MetricOperator<5,8,6>,SymmetricSBP<5,6,4>, Quadrature<6>> compact_operators_4th_order()
+  constexpr std::tuple<VariableSymmetricSBP<5,8,6>,SymmetricSBP<5,6,4>, Quadrature<6>> compact_operators_4th_order()
   {
     const stenseal::Symbol sym;
 
@@ -245,7 +255,7 @@ namespace stenseal
                                                            bdry_row6);
 
 
-    constexpr stenseal::MetricOperator<5,8,6> D2 (d2_interior,
+    constexpr stenseal::VariableSymmetricSBP<5,8,6> D2 (d2_interior,
                                                   d2_boundary);
 
     constexpr std::array<double,6> quad = {0.272727272727273,   1.621288167980855,   0.141741267470520,   1.744774462430583,   0.653104903834157,   1.066363925556612 };
@@ -256,7 +266,7 @@ namespace stenseal
   }
 
 
-  constexpr std::tuple<MetricOperator<7,12,9>,SymmetricSBP<7,9,6>, Quadrature<8> >compact_operators_6th_order()
+  constexpr std::tuple<VariableSymmetricSBP<7,12,9>,SymmetricSBP<7,9,6>, Quadrature<8> >compact_operators_6th_order()
   {
     const stenseal::Symbol sym;
 
@@ -410,9 +420,9 @@ namespace stenseal
 
 
 
-    constexpr stenseal::MetricOperator<7,12,9> D2 (d2_interior,
-                                                  d2_boundary);
-     constexpr std::array<double,8> quad = {0.295013975497606,   1.525036100088183,   0.259327876984127,   1.794691082451499,   0.417023533950617,   1.275002480158730,   0.924872960758377,   1.009031990110859};
+    constexpr stenseal::VariableSymmetricSBP<7,12,9> D2 (d2_interior,
+                                                         d2_boundary);
+    constexpr std::array<double,8> quad = {0.295013975497606,   1.525036100088183,   0.259327876984127,   1.794691082451499,   0.417023533950617,   1.275002480158730,   0.924872960758377,   1.009031990110859};
 
     constexpr stenseal::Quadrature<8> H (quad);
 

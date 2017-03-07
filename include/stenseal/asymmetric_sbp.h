@@ -2,8 +2,8 @@
  *
  */
 
-#ifndef _OPERATOR_H
-#define _OPERATOR_H
+#ifndef _ASYMMETRIC_SBP_H
+#define _ASYMMETRIC_SBP_H
 
 #include <vector>
 
@@ -18,9 +18,7 @@
 namespace stenseal
 {
   /**
-   * Class representing a 1D SBP operator, width an interior stencil with width
-   * `width_interior`, and distinct boundary stencil blocks on the left and
-   * right boundary, both with `height_boundary` rows of width `width_boundary`.
+   * Class representing a 1D SBP operator with distinct left and right boundary stencil blocks.
    *
    */
   template <int width_interior,
@@ -28,7 +26,7 @@ namespace stenseal
             int height_boundary_l,
             int width_boundary_r,
             int height_boundary_r>
-  class Operator
+  class AsymmetricSBP
   {
   private:
     const StencilTensor2D<height_boundary_l,width_boundary_l> lboundary;
@@ -45,12 +43,12 @@ namespace stenseal
      * Constructor. Takes the interior `Stencil` `i`, and the `StencilTensor2D`s
      * `l` and `r` for the left and right boundaries respectively.
      */
-    constexpr Operator(const Stencil<width_interior> i,
+    constexpr AsymmetricSBP(const Stencil<width_interior> i,
                        const StencilTensor2D<height_boundary_l,width_boundary_l> l,
                        const StencilTensor2D<height_boundary_r,width_boundary_r> r);
 
     /**
-     * Apply this `Operator` to the vector `src` and write the result into
+     * Apply this `AsymmetricSBP` to the vector `src` and write the result into
      * `dst`, both of which have length `n`.
      */
     void apply(dealii::Vector<double> &dst,
@@ -82,8 +80,8 @@ namespace stenseal
             int height_boundary_l,
             int width_boundary_r,
             int height_boundary_r>
-  constexpr Operator<width_interior,width_boundary_l,height_boundary_l,width_boundary_r,height_boundary_r>
-  ::Operator(const Stencil<width_interior> i,
+  constexpr AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l,width_boundary_r,height_boundary_r>
+  ::AsymmetricSBP(const Stencil<width_interior> i,
              const StencilTensor2D<height_boundary_l,width_boundary_l> l,
              const StencilTensor2D<height_boundary_r,width_boundary_r> r)
     :interior(i), lboundary(l), rboundary(r)
@@ -94,7 +92,7 @@ namespace stenseal
             int height_boundary_l,
             int width_boundary_r,
             int height_boundary_r>
-  void Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
+  void AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
   ::apply(dealii::Vector<double> &dst,
           const dealii::Vector<double> &src,
           const unsigned int n) const
@@ -117,7 +115,7 @@ namespace stenseal
             int height_boundary_l,
             int width_boundary_r,
             int height_boundary_r>
-  void Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
+  void AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
   ::apply_dp(dealii::Vector<double> &dst,
              const dealii::Vector<double> &src,
              const unsigned int n) const
@@ -140,7 +138,7 @@ namespace stenseal
             int height_boundary_l,
             int width_boundary_r,
             int height_boundary_r>
-  Stencil<width_interior> Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
+  Stencil<width_interior> AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
   ::get_interior_stencil() const{
     return interior;
   }
@@ -150,7 +148,7 @@ namespace stenseal
             int height_boundary_l,
             int width_boundary_r,
             int height_boundary_r>
-  StencilTensor2D<height_boundary_l,width_boundary_l>  Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
+  StencilTensor2D<height_boundary_l,width_boundary_l>  AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
   ::get_left_boundary_stencil() const{
     return lboundary;
   }
@@ -161,7 +159,7 @@ namespace stenseal
             int width_boundary_r,
             int height_boundary_r>
 
-  StencilTensor2D<height_boundary_r,width_boundary_r> Operator<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
+  StencilTensor2D<height_boundary_r,width_boundary_r> AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l, width_boundary_r, height_boundary_r>
   ::get_right_boundary_stencil() const{
     return rboundary;
   }
@@ -169,4 +167,4 @@ namespace stenseal
 
 }
 
-#endif /* _OPERATOR_H */
+#endif /* _ASYMMETRIC_SBP_H */

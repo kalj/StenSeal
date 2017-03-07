@@ -3,7 +3,7 @@
 #include <deal.II/base/numbers.h>
 
 #include "stenseal/geometry.h"
-#include "stenseal/operator.h"
+#include "stenseal/asymmetric_sbp.h"
 #include "stenseal/operator_lib.h"
 
 /**

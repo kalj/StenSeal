@@ -2,7 +2,7 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/base/numbers.h>
 
-#include "stenseal/operator.h"
+#include "stenseal/asymmetric_sbp.h"
 #include "stenseal/upwind_laplace.h"
 #include "stenseal/operator_lib.h"
 #include <deal.II/lac/sparsity_pattern.h>
