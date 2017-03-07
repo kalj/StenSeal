@@ -56,7 +56,7 @@ namespace stenseal
     template <std::size_t n, typename T, std::size_t... I>
     constexpr std::array<T,n> repeat_value_impl(const T val, const std::index_sequence<I...>)
     {
-      return { (I,val)...};
+      return { ((void)I,val)...};
     }
 
     template <std::size_t n, typename T>

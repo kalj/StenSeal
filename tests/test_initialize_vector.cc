@@ -169,7 +169,7 @@ bool evaluate_and_compare(const Geometry& geometry, const double *uref)
   const unsigned int ntot = geometry.get_n_nodes_total();
   dealii::Vector<double> u(ntot);
 
-  constexpr auto lambda = [] (const dealii::Point<dim> &p) {
+    const auto lambda = [] (const dealii::Point<dim> &p) {
     const double radius = 0.6;
     dealii::Point<dim> center;
     center[0] = 0.2;
