@@ -106,6 +106,21 @@ namespace stenseal
     return interior;
   }
 
+  template <int width_interior,
+            int width_boundary,
+            int height_boundary>
+  const int VariableSymmetricSBP<width_interior,width_boundary,height_boundary>::height_b;
+
+  template <int width_interior,
+            int width_boundary,
+            int height_boundary>
+  const int VariableSymmetricSBP<width_interior,width_boundary,height_boundary>::width_b;
+
+  template <int width_interior,
+            int width_boundary,
+            int height_boundary>
+  const int VariableSymmetricSBP<width_interior,width_boundary,height_boundary>::width_i;
+
 }
 
 #endif /* _VARIABLE_SYMMETRIC_SBP_H */
