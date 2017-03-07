@@ -164,6 +164,40 @@ namespace stenseal
     return rboundary;
   }
 
+  template <int width_interior,
+            int width_boundary_l,
+            int height_boundary_l,
+            int width_boundary_r,
+            int height_boundary_r>
+  const int AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l,width_boundary_r,height_boundary_r>::height_r;
+
+  template <int width_interior,
+            int width_boundary_l,
+            int height_boundary_l,
+            int width_boundary_r,
+            int height_boundary_r>
+  const int AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l,width_boundary_r,height_boundary_r>::height_l;
+
+  template <int width_interior,
+            int width_boundary_l,
+            int height_boundary_l,
+            int width_boundary_r,
+            int height_boundary_r>
+  const int AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l,width_boundary_r,height_boundary_r>::width_r;
+
+  template <int width_interior,
+            int width_boundary_l,
+            int height_boundary_l,
+            int width_boundary_r,
+            int height_boundary_r>
+  const int AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l,width_boundary_r,height_boundary_r>::width_l;
+
+  template <int width_interior,
+            int width_boundary_l,
+            int height_boundary_l,
+            int width_boundary_r,
+            int height_boundary_r>
+  const int AsymmetricSBP<width_interior,width_boundary_l,height_boundary_l,width_boundary_r,height_boundary_r>::width_i;
 
 }
 
